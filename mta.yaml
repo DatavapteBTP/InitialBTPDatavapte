@@ -1,0 +1,68 @@
+_schema-version: "3.2"
+ID: datavapte-migration-studio
+version: 1.0.0
+description: SAP BTP CAP app that turns Data Migration Excel templates into UI5 screens
+
+parameters:
+  enable-parallel-deployments: true
+
+modules:
+  - name: datavapte-migration-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      memory: 512M
+      disk-quota: 1024M
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: datavapte-migration-db
+      - name: datavapte-migration-uaa
+
+  - name: datavapte-migration-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: datavapte-migration-db
+
+  - name: datavapte-migration-app
+    type: html5
+    path: app/migration-studio
+    parameters:
+      disk-quota: 256M
+      memory: 128M
+    build-parameters:
+      supported-platforms: []
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci || npm install
+        - npm run build
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+
+resources:
+  - name: datavapte-migration-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+
+  - name: datavapte-migration-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json

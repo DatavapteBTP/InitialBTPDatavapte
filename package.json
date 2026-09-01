@@ -1,0 +1,45 @@
+{
+  "name": "datavapte-migration-studio",
+  "version": "1.0.0",
+  "description": "SAP BTP CAP application that uploads SAP Data Migration Cockpit Excel templates and renders each sheet as a matching UI5 screen.",
+  "repository": "https://github.com/DatavapteBTP/InitialBTPDatavapte",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@cap-js/sqlite": "^1.11.1",
+    "@sap/cds": "^8.9.4",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^5.2.5",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@sap/cds-dk": "^8.9.4"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch --port 4004",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "build": "cds build --production",
+    "sample": "node scripts/generate-sample-template.js"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": ":memory:"
+        }
+      },
+      "[production]": {
+        "db": "hana",
+        "auth": "xsuaa"
+      },
+      "[development]": {
+        "auth": "dummy"
+      }
+    }
+  }
+}
