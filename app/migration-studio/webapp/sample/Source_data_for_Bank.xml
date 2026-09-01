@@ -1,0 +1,339 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="Introduction">
+   <Table>
+    <Row>
+      <Cell><Data ss:Type="String">SAP S/4HANA Migration Cockpit</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Source data for Bank</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">How to use this template</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">1. Read the Field List tab for every field, data type, length, and mandatory indicator.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">2. Mandatory sheets are marked. Fill every mandatory field in a mandatory sheet.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">3. An asterisk (*) next to a field description means the field is mandatory.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">4. A (k) next to a technical name means the field is a key.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">5. Rows 4 to 6 are hidden technical metadata: structure name, field name, type/length.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">6. Row 8 contains the field description you maintain in the cockpit.</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">7. Business data starts in row 9. Do not rename tabs or delete columns.</Data></Cell>
+    </Row>
+   </Table>
+  </Worksheet>
+  <Worksheet ss:Name="Field List">
+   <Table>
+    <Row>
+      <Cell><Data ss:Type="String">Sheet Name</Data></Cell>
+      <Cell><Data ss:Type="String">Group Name</Data></Cell>
+      <Cell><Data ss:Type="String">Field Description</Data></Cell>
+      <Cell><Data ss:Type="String">Technical Name</Data></Cell>
+      <Cell><Data ss:Type="String">Type</Data></Cell>
+      <Cell><Data ss:Type="String">Length</Data></Cell>
+      <Cell><Data ss:Type="String">Decimals</Data></Cell>
+      <Cell><Data ss:Type="String">Mandatory</Data></Cell>
+      <Cell><Data ss:Type="String">Key</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Country Key</Data></Cell>
+      <Cell><Data ss:Type="String">BANKS</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">3</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String">*</Data></Cell>
+      <Cell><Data ss:Type="String">k</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Key</Data></Cell>
+      <Cell><Data ss:Type="String">BANKL</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">15</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String">*</Data></Cell>
+      <Cell><Data ss:Type="String">k</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Name</Data></Cell>
+      <Cell><Data ss:Type="String">BANKA</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">60</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String">*</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Region</Data></Cell>
+      <Cell><Data ss:Type="String">REGIO</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">3</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Street</Data></Cell>
+      <Cell><Data ss:Type="String">STRAS</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">35</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">City</Data></Cell>
+      <Cell><Data ss:Type="String">ORT01</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">35</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">SWIFT/BIC</Data></Cell>
+      <Cell><Data ss:Type="String">SWIFT</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">11</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Master</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Number</Data></Cell>
+      <Cell><Data ss:Type="String">BNKLZ</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">15</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Country Key</Data></Cell>
+      <Cell><Data ss:Type="String">BANKS</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">3</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String">*</Data></Cell>
+      <Cell><Data ss:Type="String">k</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Key</Data></Cell>
+      <Cell><Data ss:Type="String">BANKL</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">15</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String">*</Data></Cell>
+      <Cell><Data ss:Type="String">k</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Language</Data></Cell>
+      <Cell><Data ss:Type="String">SPRAS</Data></Cell>
+      <Cell><Data ss:Type="String">LANG</Data></Cell>
+      <Cell><Data ss:Type="String">1</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address Line</Data></Cell>
+      <Cell><Data ss:Type="String">ADRNR</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR</Data></Cell>
+      <Cell><Data ss:Type="String">80</Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+      <Cell><Data ss:Type="String"></Data></Cell>
+    </Row>
+   </Table>
+  </Worksheet>
+  <Worksheet ss:Name="Bank Master">
+   <Table>
+    <Row>
+      <Cell><Data ss:Type="String">Source Data for Bank Master</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Mandatory sheet — enter one row per bank</Data></Cell>
+    </Row>
+    <Row>
+
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+      <Cell><Data ss:Type="String">S_BNKA</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">BANKS (k)</Data></Cell>
+      <Cell><Data ss:Type="String">BANKL (k)</Data></Cell>
+      <Cell><Data ss:Type="String">BANKA</Data></Cell>
+      <Cell><Data ss:Type="String">REGIO</Data></Cell>
+      <Cell><Data ss:Type="String">STRAS</Data></Cell>
+      <Cell><Data ss:Type="String">ORT01</Data></Cell>
+      <Cell><Data ss:Type="String">SWIFT</Data></Cell>
+      <Cell><Data ss:Type="String">BNKLZ</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">CHAR 3</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 15</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 60</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 3</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 35</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 35</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 11</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 15</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Data</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Country Key *</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Key *</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Name *</Data></Cell>
+      <Cell><Data ss:Type="String">Region</Data></Cell>
+      <Cell><Data ss:Type="String">Street</Data></Cell>
+      <Cell><Data ss:Type="String">City</Data></Cell>
+      <Cell><Data ss:Type="String">SWIFT/BIC</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Number</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">DE</Data></Cell>
+      <Cell><Data ss:Type="String">20060001</Data></Cell>
+      <Cell><Data ss:Type="String">City Bank</Data></Cell>
+      <Cell><Data ss:Type="String">06</Data></Cell>
+      <Cell><Data ss:Type="String">Mainzer Landstrasse 16</Data></Cell>
+      <Cell><Data ss:Type="String">Frankfurt</Data></Cell>
+      <Cell><Data ss:Type="String">COBADEFFXXX</Data></Cell>
+      <Cell><Data ss:Type="String">20060001</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">US</Data></Cell>
+      <Cell><Data ss:Type="String">121000248</Data></Cell>
+      <Cell><Data ss:Type="String">Wells Fargo Bank</Data></Cell>
+      <Cell><Data ss:Type="String">CA</Data></Cell>
+      <Cell><Data ss:Type="String">420 Montgomery St</Data></Cell>
+      <Cell><Data ss:Type="String">San Francisco</Data></Cell>
+      <Cell><Data ss:Type="String">WFBIUS6SXXX</Data></Cell>
+      <Cell><Data ss:Type="String">121000248</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">IN</Data></Cell>
+      <Cell><Data ss:Type="String">HDFC0000123</Data></Cell>
+      <Cell><Data ss:Type="String">HDFC Bank</Data></Cell>
+      <Cell><Data ss:Type="String">MH</Data></Cell>
+      <Cell><Data ss:Type="String">Senapati Bapat Marg</Data></Cell>
+      <Cell><Data ss:Type="String">Mumbai</Data></Cell>
+      <Cell><Data ss:Type="String">HDFCINBBXXX</Data></Cell>
+      <Cell><Data ss:Type="String">HDFC0000123</Data></Cell>
+    </Row>
+   </Table>
+  </Worksheet>
+  <Worksheet ss:Name="Bank Address">
+   <Table>
+    <Row>
+      <Cell><Data ss:Type="String">Source Data for Bank Address</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Optional sheet</Data></Cell>
+    </Row>
+    <Row>
+
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">S_ADDR</Data></Cell>
+      <Cell><Data ss:Type="String">S_ADDR</Data></Cell>
+      <Cell><Data ss:Type="String">S_ADDR</Data></Cell>
+      <Cell><Data ss:Type="String">S_ADDR</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">BANKS (k)</Data></Cell>
+      <Cell><Data ss:Type="String">BANKL (k)</Data></Cell>
+      <Cell><Data ss:Type="String">SPRAS</Data></Cell>
+      <Cell><Data ss:Type="String">ADRNR</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">CHAR 3</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 15</Data></Cell>
+      <Cell><Data ss:Type="String">LANG 1</Data></Cell>
+      <Cell><Data ss:Type="String">CHAR 80</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+      <Cell><Data ss:Type="String">Address</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">Bank Country Key *</Data></Cell>
+      <Cell><Data ss:Type="String">Bank Key *</Data></Cell>
+      <Cell><Data ss:Type="String">Language</Data></Cell>
+      <Cell><Data ss:Type="String">Address Line</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">DE</Data></Cell>
+      <Cell><Data ss:Type="String">20060001</Data></Cell>
+      <Cell><Data ss:Type="String">D</Data></Cell>
+      <Cell><Data ss:Type="String">City Bank Frankfurt HQ</Data></Cell>
+    </Row>
+    <Row>
+      <Cell><Data ss:Type="String">US</Data></Cell>
+      <Cell><Data ss:Type="String">121000248</Data></Cell>
+      <Cell><Data ss:Type="String">E</Data></Cell>
+      <Cell><Data ss:Type="String">Wells Fargo San Francisco</Data></Cell>
+    </Row>
+   </Table>
+  </Worksheet>
+</Workbook>

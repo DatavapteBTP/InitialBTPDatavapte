@@ -1,0 +1,17 @@
+{
+  "xsappname": "datavapte-migration-studio",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.User",
+      "description": "Use Migration Studio"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "User",
+      "description": "Migration Studio user",
+      "scope-references": ["$XSAPPNAME.User"]
+    }
+  ]
+}
