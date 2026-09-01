@@ -2,8 +2,7 @@
   controllerName="datavapte.migration.studio.controller.Viewer"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
-  xmlns:core="sap.ui.core"
-  xmlns:l="sap.ui.layout">
+  xmlns:table="sap.ui.table">
   <Page id="viewerPage" title="{app>/current/objectName}" showNavButton="true" navButtonPress=".onNavBack">
     <customHeader>
       <Bar class="dmsHeader">
@@ -29,28 +28,72 @@
           type="Information"
           showIcon="true"
           class="sapUiSmallMargin" />
-        <HBox id="sheetHost" height="100%" width="100%" renderType="Bare" class="dmsSheetHost">
-          <VBox id="gridPane" width="100%" height="100%" class="dmsGridPane">
-            <HBox id="columnMeta" class="dmsColumnMeta sapUiSmallMarginBeginEnd" visible="false" />
-            <ScrollContainer
-              id="gridScroll"
-              horizontal="true"
-              vertical="true"
-              width="100%"
-              height="100%"
-              class="dmsGridScroll">
-              <core:HTML id="excelGrid" preferDOM="true" sanitizeContent="false" />
-            </ScrollContainer>
-          </VBox>
-        </HBox>
+        <IconTabBar
+          id="sheetTabBar"
+          select=".onSheetSelect"
+          expandable="false"
+          stretchContentHeight="true"
+          headerMode="Inline"
+          class="dmsIconTabBar sapUiResponsiveContentPadding">
+          <items />
+          <content>
+            <VBox height="100%" class="dmsEditorPane">
+              <OverflowToolbar>
+                <Title id="sheetTitle" text="{app>/editor/title}" />
+                <ObjectStatus
+                  id="sheetBadge"
+                  text="{i18n>mandatorySheet}"
+                  state="Warning"
+                  visible="{app>/editor/isMandatory}" />
+                <ToolbarSpacer />
+                <Button
+                  id="addRowButton"
+                  text="{i18n>addRow}"
+                  icon="sap-icon://add"
+                  visible="{app>/editor/tableVisible}"
+                  press=".onAddRow" />
+                <Button
+                  id="deleteRowButton"
+                  text="{i18n>deleteRow}"
+                  icon="sap-icon://delete"
+                  visible="{app>/editor/tableVisible}"
+                  press=".onDeleteRow" />
+                <Button
+                  id="saveButton"
+                  text="{i18n>saveSheet}"
+                  type="Emphasized"
+                  icon="sap-icon://save"
+                  enabled="{app>/editor/dirty}"
+                  press=".onSaveSheet" />
+              </OverflowToolbar>
+              <TextArea
+                id="introEditor"
+                value="{app>/editor/introText}"
+                visible="{app>/editor/introVisible}"
+                liveChange=".onIntroChange"
+                growing="true"
+                growingMaxLines="24"
+                width="100%"
+                rows="16"
+                class="sapUiSmallMarginTop" />
+              <table:Table
+                id="sheetTable"
+                visible="{app>/editor/tableVisible}"
+                rows="{app>/editor/rows}"
+                selectionMode="Single"
+                selectionBehavior="Row"
+                editable="true"
+                visibleRowCountMode="Auto"
+                minAutoRowCount="8"
+                columnHeaderHeight="92"
+                rowHeight="36"
+                enableColumnReordering="false"
+                ariaLabelledBy="sheetTitle"
+                class="dmsEditableTable sapUiSmallMarginTop" />
+            </VBox>
+          </content>
+        </IconTabBar>
       </VBox>
     </content>
-    <footer>
-      <Bar class="dmsSheetTabs">
-        <contentLeft>
-          <HBox id="sheetTabs" alignItems="Center" class="dmsTabStrip" />
-        </contentLeft>
-      </Bar>
-    </footer>
   </Page>
 </mvc:View>

@@ -11,10 +11,10 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
    - data type / length
    - description, mandatory `*`, and key `(k)`
 3. The UI5 app opens the file as a workbook:
-   - sheet tabs along the bottom, same names as Excel
-   - Introduction as a document page
-   - Field List and data sheets as spreadsheet-style grids
-   - yellow highlight for mandatory fields and sheets
+   - IconTabBar for every Excel tab
+   - Introduction as an editable text page
+   - Field List and data sheets as editable tables (add / delete / save rows)
+   - mandatory sheets marked on the tab
 
 ## Project layout
 

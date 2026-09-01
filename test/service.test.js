@@ -40,6 +40,47 @@ describe('MigrationService upload', () => {
     assert.ok(master.rows.length >= 3);
   });
 
+  it('saves edited sheet rows', async () => {
+    const { url } = await test;
+    const content = fs.readFileSync(FIXTURE_XML).toString('base64');
+    const uploaded = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'Source_data_for_Bank.xml',
+        mediaType: 'application/xml',
+        content
+      })
+    }).then((res) => res.json());
+
+    const read = await fetch(
+      `${url}/odata/v4/migration/Templates(${uploaded.ID})?$expand=sheets($expand=rows)`
+    ).then((res) => res.json());
+    const master = read.sheets.find((s) => s.name === 'Bank Master');
+    assert.ok(master);
+
+    const save = await fetch(url + '/odata/v4/migration/saveSheetData', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sheetId: master.ID,
+        introText: '',
+        rows: JSON.stringify([
+          { rowIndex: 1, values: ['FR', '30004', 'Edited Bank', '', '', 'Paris', '', ''] }
+        ])
+      })
+    });
+    const saved = await save.json();
+    assert.equal(save.status, 200, saved.error?.message || JSON.stringify(saved));
+    assert.equal(saved.value, 1);
+
+    const after = await fetch(
+      `${url}/odata/v4/migration/Sheets(${master.ID})?$expand=rows`
+    ).then((res) => res.json());
+    assert.equal(after.rows.length, 1);
+    assert.match(after.rows[0].values, /Edited Bank/);
+  });
+
   it('rejects unsupported file types', async () => {
     const { url } = await test;
     const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {

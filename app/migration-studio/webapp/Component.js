@@ -16,7 +16,18 @@ sap.ui.define([
         busy: false,
         busyReason: "",
         templates: [],
-        current: null
+        current: null,
+        editor: {
+          sheetId: "",
+          title: "",
+          isMandatory: false,
+          introVisible: false,
+          tableVisible: true,
+          introText: "",
+          fields: [],
+          rows: [],
+          dirty: false
+        }
       }), "app");
 
       this.getRouter().initialize();

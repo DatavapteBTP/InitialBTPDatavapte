@@ -18,4 +18,10 @@ service MigrationService {
   ) returns Templates;
 
   function sheetGrid(sheetId : UUID) returns LargeString;
+
+  action saveSheetData(
+    sheetId   : UUID,
+    introText : LargeString,
+    rows      : LargeString
+  ) returns Integer;
 }
