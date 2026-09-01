@@ -198,7 +198,7 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
     });
   }
 
-  const isMandatory = fields.some((f) => f.mandatory && f.isKey) || /general|master|basic/i.test(raw.name);
+  const isMandatory = /general|master|basic/i.test(raw.name);
 
   return {
     title: firstNonEmpty(rows[0]) || raw.name,

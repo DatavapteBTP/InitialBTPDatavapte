@@ -2,8 +2,6 @@
   controllerName="datavapte.migration.studio.controller.Home"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
-  xmlns:core="sap.ui.core"
-  xmlns:l="sap.ui.layout"
   xmlns:u="sap.ui.unified">
   <Page id="homePage" title="{i18n>appTitle}" class="sapUiResponsiveContentPadding">
     <customHeader>
@@ -17,47 +15,40 @@
       </Bar>
     </customHeader>
     <content>
-      <VBox class="sapUiSmallMarginBottom">
-        <IllustratedMessage
-          illustrationType="sapIllus-UploadCollection"
-          title="{i18n>uploadTitle}"
-          description="{i18n>uploadDescription}">
-          <additionalContent>
-            <VBox alignItems="Center" width="100%">
-              <u:FileUploader
-                id="fileUploader"
-                name="template"
-                width="28rem"
-                tooltip="{i18n>uploadTooltip}"
-                fileType="xlsx,xlsm,xls,xml"
-                placeholder="{i18n>uploadPlaceholder}"
-                sameFilenameAllowed="true"
-                buttonText="{i18n>browse}"
-                change=".onFileChange"
-                style="Emphasized"
-                class="sapUiSmallMarginBottom" />
-              <HBox justifyContent="Center" wrap="Wrap">
-                <Button
-                  id="uploadButton"
-                  text="{i18n>uploadAndOpen}"
-                  type="Emphasized"
-                  icon="sap-icon://excel-attachment"
-                  enabled="false"
-                  press=".onUpload" />
-                <Button
-                  id="sampleButton"
-                  text="{i18n>loadSample}"
-                  type="Ghost"
-                  class="sapUiTinyMarginBegin"
-                  press=".onLoadSample" />
-              </HBox>
-              <Text id="selectedFileName" class="sapUiTinyMarginTop sapUiMutedText" text="" />
-            </VBox>
-          </additionalContent>
-        </IllustratedMessage>
+      <VBox class="sapUiSmallMargin">
+        <Title text="{i18n>uploadTitle}" level="H2" class="sapUiSmallMarginBottom" />
+        <Text text="{i18n>uploadDescription}" class="sapUiSmallMarginBottom" />
+        <u:FileUploader
+          id="fileUploader"
+          name="template"
+          width="28rem"
+          tooltip="{i18n>uploadTooltip}"
+          fileType="xlsx,xlsm,xls,xml"
+          placeholder="{i18n>uploadPlaceholder}"
+          sameFilenameAllowed="true"
+          buttonText="{i18n>browse}"
+          change=".onFileChange"
+          style="Emphasized"
+          class="sapUiSmallMarginBottom" />
+        <HBox wrap="Wrap" class="sapUiTinyMarginBottom">
+          <Button
+            id="uploadButton"
+            text="{i18n>uploadAndOpen}"
+            type="Emphasized"
+            icon="sap-icon://excel-attachment"
+            enabled="false"
+            press=".onUpload" />
+          <Button
+            id="sampleButton"
+            text="{i18n>loadSample}"
+            type="Ghost"
+            class="sapUiTinyMarginBegin"
+            press=".onLoadSample" />
+        </HBox>
+        <Text id="selectedFileName" class="sapUiTinyMarginTop sapUiMutedText" text="" />
       </VBox>
 
-      <Panel headerText="{i18n>recentTemplates}" expandable="false" class="sapUiSmallMarginTop">
+      <Panel headerText="{i18n>recentTemplates}" expandable="false" class="sapUiSmallMargin">
         <Table
           id="templateTable"
           items="{app>/templates}"

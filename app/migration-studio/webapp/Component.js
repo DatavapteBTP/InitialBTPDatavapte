@@ -1,8 +1,7 @@
 sap.ui.define([
   "sap/ui/core/UIComponent",
-  "sap/ui/model/json/JSONModel",
-  "sap/ui/model/odata/v4/ODataModel"
-], function (UIComponent, JSONModel, ODataModel) {
+  "sap/ui/model/json/JSONModel"
+], function (UIComponent, JSONModel) {
   "use strict";
 
   return UIComponent.extend("datavapte.migration.studio.Component", {
@@ -19,13 +18,6 @@ sap.ui.define([
         templates: [],
         current: null
       }), "app");
-
-      this.setModel(new ODataModel({
-        serviceUrl: this.getManifestEntry("/sap.app/dataSources/mainService/uri"),
-        synchronizationMode: "None",
-        autoExpandSelect: false,
-        operationMode: "Server"
-      }));
 
       this.getRouter().initialize();
     }
