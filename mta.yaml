@@ -3,9 +3,6 @@ ID: datavapte-migration-studio
 version: 1.0.0
 description: SAP BTP CAP app that turns Data Migration Excel templates into UI5 screens
 
-parameters:
-  enable-parallel-deployments: true
-
 modules:
   - name: datavapte-migration-srv
     type: nodejs
@@ -23,7 +20,8 @@ modules:
     requires:
       - name: datavapte-migration-db
       - name: datavapte-migration-uaa
-
+      - name: datavapte-migration-destination-service
+      - name: datavapte-migration-connectivity-service
   - name: datavapte-migration-db-deployer
     type: hdb
     path: gen/db
@@ -31,8 +29,52 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: datavapte-migration-db
+  - name: datavapte-migration-destination-content
+    type: com.sap.application.content
+    requires:
+    - name: datavapte-migration-destination-service
+      parameters:
+        content-target: true
+    - name: datavapte-migration_html_repo_host
+      parameters:
+        service-key:
+        name: datavapte-migration_html_repo_host-key
+    - name: datavapte-migration-uaa
+      parameters:
+        service-key:
+        name: datavapte-migration-uaa-key
+    parameters:
+      content:
+        instance:
+          destinations:
+          - Name: AppRouterDatavapte_datavapte-migration_html_repo_host
+            ServiceInstanceName: datavapte-migration-html5-app-host-service
+            ServiceKeyName: datavapte-migration_html_repo_host-key
+            sap.cloud.service: AppRouterDatavapte
+          - Authentication: OAuth2UserTokenExchange
+            Name: AppRouterDatavapte_datavapte-migration_uaa
+            ServiceInstanceName: datavapte-migration-xsuaa-service
+            ServiceKeyName: datavapte-migration-uaa-key
+            sap.cloud.service: AppRouterDatavapte
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+  - name: datavapte-migration-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+    - name: datavapte-migration_html_repo_host
+      parameters:
+        content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+      - artifacts:
+        - datavaptemigrationstudio.zip
+        name: datavaptemigrationstudio
+        target-path: resources/
 
-  - name: datavapte-migration-app
+  - name: datavaptemigrationstudio
     type: html5
     path: app/migration-studio
     parameters:
@@ -54,15 +96,68 @@ modules:
           forwardAuthToken: true
 
 resources:
-  - name: datavapte-migration-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
-
-  - name: datavapte-migration-uaa
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: xsuaa
-      service-plan: application
-      path: ./xs-security.json
+- name: datavapte-migration-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: datavapte-migration-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: datavapte-migration-xsuaa-service
+    service-plan: application
+- name: datavapte-migration-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    config:
+      schema: ZINNOVAPTE_DATAVAPTE
+    service: hana
+    service-plan: hdi-shared
+- name: datavapte-migration-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: datavapte-migration-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: datavapte-migration-destination-service
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: datavapte-migration-connectivity-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
+- name: datavapte-migration_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: datavapte-migration-html5-app-host-service
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
+  

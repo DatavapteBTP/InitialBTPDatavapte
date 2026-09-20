@@ -5,18 +5,26 @@
     "type": "application",
     "title": "Datavapte Migration Studio",
     "description": "Upload SAP Data Migration Excel templates and open them as UI5 screens",
-    "applicationVersion": { "version": "1.0.0" },
+    "applicationVersion": {
+      "version": "1.0.0"
+    },
     "dataSources": {
       "mainService": {
         "uri": "/odata/v4/migration/",
         "type": "OData",
-        "settings": { "odataVersion": "4.0" }
+        "settings": {
+          "odataVersion": "4.0"
+        }
       }
     }
   },
   "sap.ui": {
     "technology": "UI5",
-    "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
   },
   "sap.ui5": {
     "flexEnabled": false,
@@ -38,7 +46,9 @@
     "models": {
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
-        "settings": { "bundleName": "datavapte.migration.studio.i18n.i18n" }
+        "settings": {
+          "bundleName": "datavapte.migration.studio.i18n.i18n"
+        }
       }
     },
     "routing": {
@@ -49,7 +59,9 @@
         "controlId": "app",
         "controlAggregation": "pages",
         "async": true,
-        "bypassed": { "target": "home" }
+        "bypassed": {
+          "target": "home"
+        }
       },
       "routes": [
         {
@@ -77,7 +89,15 @@
       }
     },
     "resources": {
-      "css": [{ "uri": "css/style.css" }]
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
     }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "AppRouterDatavapte"
   }
 }

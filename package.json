@@ -13,10 +13,35 @@
     "@sap/cds": "^8.9.4",
     "express": "^4.21.2",
     "fast-xml-parser": "^5.2.5",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@sap-cloud-sdk/connectivity": "^3.9.0",
+    "@sap-cloud-sdk/core": "^1.47.1",
+    "@sap-cloud-sdk/http-client": "^3.16.0",
+    "@sap-cloud-sdk/mail-client": "^3.9.0",
+    "@sap/cds-hana": "^2",
+    "@sap/cds-odata-v2-adapter-proxy": "^1.9.21",
+    "@sap/hana-client": "^2.20.22",
+    "@sap/textbundle": "^5.0.0",
+    "@sap/xsenv": "^3.3.1",
+    "@sap/xssec": "^3.6.1",
+    "api": "^6.1.1",
+    "axios": "^0.21.4",
+    "cfenv": "^1.2.4",
+    "exceljs": "^4.4.0",
+    "hdb": "^0.19.9",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.5.45",
+    "passport": "^0.7.0",
+    "sap-cf-axios": "^0.4.8"
   },
   "devDependencies": {
-    "@sap/cds-dk": "^8.9.4"
+    "@sap/cds-dk": "^8.9.4",
+    "@sap/edm-converters": "^1.0.43",
+    "@sap/eslint-plugin-cds": "^3",
+    "@sap/hdi-deploy": "4.9.4",
+    "@sap/ux-specification": "^1.120.10",
+    "eslint": "^9",
+    "rimraf": "^3.0.2"
   },
   "scripts": {
     "start": "cds-serve",
@@ -28,10 +53,7 @@
   "cds": {
     "requires": {
       "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "url": ":memory:"
-        }
+        "kind": "hana"
       },
       "[production]": {
         "db": "hana",
@@ -40,6 +62,12 @@
       "[development]": {
         "auth": "dummy"
       }
+    },
+    "hana": {
+      "deploy-format": "hdbtable"
     }
-  }
+  },
+  "sapux": [
+    "app/migration-studio"
+  ]
 }
