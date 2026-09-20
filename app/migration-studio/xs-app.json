@@ -1,18 +1,20 @@
 {
-  "welcomeFile": "/index.html",
+  "welcomeFile": "index.html",
   "authenticationMethod": "route",
   "routes": [
     {
       "source": "^/odata/(.*)$",
-      "destination": "srv-api",
-      "csrfProtection": false,
-      "authenticationType": "xsuaa"
+      "target": "/odata/$1",
+      "destination": "datavapte-migration-srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
     },
     {
       "source": "^/sample/(.*)$",
-      "destination": "srv-api",
-      "csrfProtection": false,
-      "authenticationType": "xsuaa"
+      "target": "/sample/$1",
+      "destination": "datavapte-migration-srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
     },
     {
       "source": "^(.*)$",

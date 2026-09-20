@@ -70,6 +70,21 @@ The **Field List** tab is used to enrich type, length, mandatory, and key flags 
 
 ## Deploy to SAP BTP
 
+HTML5 App Repo requires `manifest.json` **and** `xs-app.json` at the **root** of `datavaptemigrationstudio.zip`. The UI5 build copies `webapp/` plus `xs-app.json` into `dist/` and writes that zip. A missing `xs-app.json` produces:
+
+`Upload application content failed { CODE: '1001' } validation error: Could not find applications in the request.`
+
+Rebuild after pulling this fix:
+
+```bash
+npm install
+npx cds build --production
+npm --prefix app/migration-studio run build
+unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
+mbt build
+cf deploy mta_archives/datavapte-migration-studio_1.0.0.mtar
+```
+
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
 2. Add HANA and XSUAA if you have not already: `npx cds add hana,xsuaa,mta`.
 3. Build and deploy:

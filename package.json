@@ -35,6 +35,7 @@
     "sap-cf-axios": "^0.4.8"
   },
   "devDependencies": {
+    "@cap-js/sqlite": "^1.11.1",
     "@sap/cds-dk": "^8.9.4",
     "@sap/edm-converters": "^1.0.43",
     "@sap/eslint-plugin-cds": "^3",
@@ -53,13 +54,24 @@
   "cds": {
     "requires": {
       "db": {
-        "kind": "hana"
+        "kind": "sqlite",
+        "credentials": {
+          "url": ":memory:"
+        }
       },
       "[production]": {
-        "db": "hana",
+        "db": {
+          "kind": "hana"
+        },
         "auth": "xsuaa"
       },
       "[development]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
         "auth": "dummy"
       }
     },

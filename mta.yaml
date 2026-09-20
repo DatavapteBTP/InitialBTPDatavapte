@@ -38,11 +38,11 @@ modules:
     - name: datavapte-migration_html_repo_host
       parameters:
         service-key:
-        name: datavapte-migration_html_repo_host-key
+          name: datavapte-migration_html_repo_host-key
     - name: datavapte-migration-uaa
       parameters:
         service-key:
-        name: datavapte-migration-uaa-key
+          name: datavapte-migration-uaa-key
     parameters:
       content:
         instance:
@@ -67,6 +67,7 @@ modules:
       parameters:
         content-target: true
     build-parameters:
+      no-source: true
       build-result: resources
       requires:
       - artifacts:
@@ -130,6 +131,13 @@ resources:
             HTML5.DynamicDestination: true
             HTML5.ForwardAuthToken: true
             Name: datavapte-migration-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: srv-api
             ProxyType: Internet
             Type: HTTP
             URL: ~{srv-api/srv-url}
