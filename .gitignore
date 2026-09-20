@@ -9,10 +9,10 @@ default-env.json
 coverage/
 tmp/
 *.log
-resources/
 mta_archives/
 *.mtar
 app/migration-studio/dist/
+app/html5-content/resources/*.zip
 
 # auto generated wildcard
 db/.env

@@ -74,6 +74,10 @@ HTML5 App Repo requires `manifest.json` **and** `xs-app.json` at the **root** of
 
 `Upload application content failed { CODE: '1001' } validation error: Could not find applications in the request.`
 
+Do **not** set `no-source: true` on `datavapte-migration-app-content`. That flag is only for destination configuration modules. Using it on the HTML5 zip deployer produces:
+
+`Cannot invoke ... ContentToDeploy.getContentType() because "contentToDeploy" is null`
+
 Rebuild after pulling this fix:
 
 ```bash

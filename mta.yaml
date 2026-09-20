@@ -61,13 +61,12 @@ modules:
       no-source: true
   - name: datavapte-migration-app-content
     type: com.sap.application.content
-    path: .
+    path: app/html5-content
     requires:
     - name: datavapte-migration_html_repo_host
       parameters:
         content-target: true
     build-parameters:
-      no-source: true
       build-result: resources
       requires:
       - artifacts:
@@ -78,9 +77,6 @@ modules:
   - name: datavaptemigrationstudio
     type: html5
     path: app/migration-studio
-    parameters:
-      disk-quota: 256M
-      memory: 128M
     build-parameters:
       supported-platforms: []
       build-result: dist
@@ -107,6 +103,8 @@ resources:
     service: xsuaa
     service-name: datavapte-migration-xsuaa-service
     service-plan: application
+    service-keys:
+      - name: datavapte-migration-uaa-key
 - name: datavapte-migration-db
   type: com.sap.xs.hdi-container
   parameters:
@@ -159,6 +157,8 @@ resources:
     service: html5-apps-repo
     service-name: datavapte-migration-html5-app-host-service
     service-plan: app-host
+    service-keys:
+      - name: datavapte-migration_html_repo_host-key
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
