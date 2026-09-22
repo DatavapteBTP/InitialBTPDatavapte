@@ -86,7 +86,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.1.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.2.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -96,7 +96,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.1.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.1.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.2.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
@@ -112,12 +112,13 @@ This revision:
 - creates the CAP destination in destination-service `init_data` (`NoAuthentication` + `HTML5.ForwardAuthToken`). Do not put this URL destination in `destination-content` — GACD requires `ServiceInstanceName` there and deploy fails.
 - adds a **standalone approuter** that uses the XSUAA login flow (this path works even when Work Zone IAS trust is missing)
 
-After `mbt build && cf deploy`, open either:
+After `mbt build && cf deploy`, use the **standalone approuter** first (this path is live and uses XSUAA login):
 
-1. Launchpad (IAS):  
-   `https://<site>.launchpad.cfapps.us10.hana.ondemand.com/<dest-guid>.AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html`
-2. Standalone approuter (XSUAA):  
-   `https://<org>-<space>-datavapte-migration.cfapps.us10.hana.ondemand.com/AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html`
+`https://the-innovapte-company-dev-space-datavapte-migration.cfapps.us10.hana.ondemand.com/AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html`
+
+The Work Zone URL  
+`https://<site>.launchpad.cfapps.us10.hana.ondemand.com/<dest-guid>.AppRouterDatavapte.datavaptemigrationstudio-1.0.0/`  
+fails with 500 when the managed runtime looks up HTML5 destinations (IAS vs XSUAA). The HTML5 `xs-app.json` no longer references those destinations; Launchpad API calls go straight to the CAP service with CORS.
 
 Assign role collection **DatavapteMigrationStudio** if you turn CAP `restrict_all_services` back on. To stop the Launchpad 500 permanently while keeping XSUAA on the HTML5 routes, establish **IAS ↔ XSUAA trust** for this subaccount (BTP Cockpit → Trust Configuration).
 

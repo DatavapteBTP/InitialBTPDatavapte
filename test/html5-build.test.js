@@ -43,13 +43,13 @@ describe('HTML5 App Repo package', () => {
     assert.equal(names.some((name) => name.startsWith('dist/')), false);
   });
 
-  it('disables XSUAA on HTML5 routes so Launchpad IAS login does not 500', () => {
+  it('does not reference destinations in the HTML5 xs-app catch-all', () => {
     const xsApp = JSON.parse(fs.readFileSync(path.join(APP_DIR, 'xs-app.json'), 'utf8'));
-    assert.equal(xsApp.authenticationMethod, 'none');
     assert.equal(xsApp.welcomeFile, '/index.html');
-    const odata = xsApp.routes.find((route) => route.destination === 'datavapte-migration-srv-api');
-    assert.ok(odata, 'OData must go through the CAP destination');
-    assert.equal(odata.authenticationType, 'none');
-    assert.equal(xsApp.routes.some((route) => route.destination === 'ui5'), false);
+    assert.equal(xsApp.authenticationMethod, 'route');
+    assert.equal(xsApp.routes.length, 1);
+    assert.equal(xsApp.routes[0].service, 'html5-apps-repo-rt');
+    assert.equal(xsApp.routes[0].authenticationType, 'none');
+    assert.equal(xsApp.routes.some((route) => route.destination), false);
   });
 });

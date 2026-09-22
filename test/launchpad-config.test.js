@@ -38,6 +38,17 @@ describe('Launchpad / destination wiring', () => {
     assert.match(routerXsApp.welcomeFile, /AppRouterDatavapte\.datavaptemigrationstudio/);
   });
 
+  it('calls CAP directly from Launchpad instead of a Work Zone destination', () => {
+    const service = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/model/Service.js'),
+      'utf8'
+    );
+    assert.match(service, /the-innovapte-company-dev-space-datavapte-migration-srv/);
+    assert.match(service, /isLaunchpad/);
+    const server = fs.readFileSync(path.join(ROOT, 'srv/server.js'), 'utf8');
+    assert.match(server, /Access-Control-Allow-Origin/);
+  });
+
   it('uses app-relative OData URLs in the UI5 manifest', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'app/migration-studio/webapp/manifest.json'), 'utf8')

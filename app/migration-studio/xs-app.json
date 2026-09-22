@@ -1,14 +1,7 @@
 {
   "welcomeFile": "/index.html",
-  "authenticationMethod": "none",
+  "authenticationMethod": "route",
   "routes": [
-    {
-      "source": "^/odata/(.*)$",
-      "target": "/odata/$1",
-      "destination": "datavapte-migration-srv-api",
-      "authenticationType": "none",
-      "csrfProtection": false
-    },
     {
       "source": "^(.*)$",
       "target": "$1",
