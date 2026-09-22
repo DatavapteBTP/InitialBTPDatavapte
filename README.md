@@ -1,1 +1,131 @@
-# InitialBTPDatavapte
+# Datavapte Migration Studio
+
+SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** Excel template (`.xlsx` or SpreadsheetML `.xml`) and turns every workbook tab into a matching SAP UI5 screen.
+
+## What it does
+
+1. Upload a Migration Cockpit template (or a generic multi-sheet Excel file).
+2. The CAP service reads **all tabs** and the field metadata SAP hides in rows 4–8:
+   - structure name
+   - technical field name
+   - data type / length
+   - description, mandatory `*`, and key `(k)`
+3. The UI5 app opens the file as a workbook:
+   - IconTabBar for every Excel tab
+   - Introduction as an editable text page
+   - Field List and data sheets as editable tables (add / delete / save rows)
+   - mandatory sheets marked on the tab
+
+## Project layout
+
+| Path | Role |
+| --- | --- |
+| `db/schema.cds` | Templates, sheets, fields, data rows |
+| `srv/migration-service.cds` | OData V4 service + `uploadTemplate` action |
+| `srv/lib/excel-parser.js` | Migration Cockpit + generic Excel parser |
+| `srv/lib/spreadsheetml.js` | Excel XML Spreadsheet 2003 reader |
+| `app/migration-studio/webapp` | SAP UI5 freestyle app |
+| `test/` | Parser and service tests |
+| `mta.yaml` | Cloud Foundry / BTP deploy descriptor |
+
+## Local run
+
+```bash
+npm install
+npm run sample
+npm test
+npm start
+```
+
+Open [http://localhost:4004](http://localhost:4004).
+
+- **Upload and open as UI5** — choose a cockpit `.xlsx` or `.xml` file
+- **Open sample Bank template** — loads `Source data for Bank` (Introduction, Field List, Bank Master, Bank Address)
+
+The OData service is at `/odata/v4/migration/`.
+
+### Upload from the command line
+
+```bash
+node -e "const fs=require('fs'); const b=fs.readFileSync('test/fixtures/Source_data_for_Bank.xml').toString('base64'); fs.writeFileSync('/tmp/body.json', JSON.stringify({fileName:'Source_data_for_Bank.xml',mediaType:'application/xml',content:b}))"
+curl -s -X POST http://localhost:4004/odata/v4/migration/uploadTemplate \
+  -H 'Content-Type: application/json' \
+  --data-binary @/tmp/body.json
+```
+
+## SAP template layout that is recognized
+
+Data sheets follow the Migration Cockpit XML template:
+
+| Row | Content |
+| --- | --- |
+| 4 | Technical structure name (hidden in Excel) |
+| 5 | Technical field name, `(k)` = key |
+| 6 | Data type and length |
+| 7 | Group name |
+| 8 | Field description, `*` = mandatory |
+| 9+ | Business data |
+
+The **Field List** tab is used to enrich type, length, mandatory, and key flags when present. Generic workbooks (first row = headers) are also supported.
+
+## Deploy to SAP BTP
+
+HTML5 App Repo requires `manifest.json` **and** `xs-app.json` at the **root** of `datavaptemigrationstudio.zip`. The UI5 build copies `webapp/` plus `xs-app.json` into `dist/` and writes that zip. A missing `xs-app.json` produces:
+
+`Upload application content failed { CODE: '1001' } validation error: Could not find applications in the request.`
+
+Do **not** set `no-source: true` on `datavapte-migration-app-content`. That flag is only for destination configuration modules. Using it on the HTML5 zip deployer produces:
+
+`Cannot invoke ... ContentToDeploy.getContentType() because "contentToDeploy" is null`
+
+Rebuild after pulling this fix:
+
+```bash
+npm install
+npx cds build --production
+npm --prefix app/migration-studio run build
+unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
+mbt build
+cf deploy mta_archives/datavapte-migration-studio_1.0.6.mtar
+```
+
+1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
+2. Add HANA and XSUAA if you have not already: `npx cds add hana,xsuaa,mta`.
+3. Build and deploy:
+
+```bash
+npx cds build --production
+mbt build
+cf deploy mta_archives/datavapte-migration-studio_1.0.6.mtar
+```
+
+Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
+
+### Launchpad “Internal Server Error” after deploy
+
+The Work Zone / Launchpad site logs in with **IAS**. The HTML5 app destinations used **XSUAA token exchange**. After IAS login the managed approuter fails that exchange and returns **500** on `index.html` (SAP KBA 3463753). The UI also called absolute `/odata/...` URLs on the Launchpad host, which is not the CAP service.
+
+This revision:
+
+- serves the HTML5 app **without** XSUAA (`authenticationMethod: none`) so `index.html` can load after IAS login
+- keeps OData routes **app-relative** under the HTML5 path
+- creates the CAP destination in destination-service `init_data` (`NoAuthentication` + `HTML5.ForwardAuthToken`). Do not put this URL destination in `destination-content` — GACD requires `ServiceInstanceName` there and deploy fails.
+- adds a **standalone approuter** that uses the XSUAA login flow (this path works even when Work Zone IAS trust is missing)
+
+After `mbt build && cf deploy`, open the **CAP service** (UI and OData on the same host, no XSUAA / Work Zone):
+
+`https://the-innovapte-company-dev-space-datavapte-migration-srv.cfapps.us10.hana.ondemand.com/`
+
+The standalone approuter (`…-datavapte-migration.cfapps…`) no longer requires login. Do not use the Work Zone `/9025eadc-…AppRouterDatavapte…` URL; that managed runtime still returns 500.
+
+The Work Zone URL  
+`https://<site>.launchpad.cfapps.us10.hana.ondemand.com/<dest-guid>.AppRouterDatavapte.datavaptemigrationstudio-1.0.0/`  
+fails with 500 when the managed runtime looks up HTML5 destinations (IAS vs XSUAA). Use the CAP host above instead.
+
+Assign role collection **DatavapteMigrationStudio** if you turn CAP `restrict_all_services` back on. To stop the Launchpad 500 permanently while keeping XSUAA on the HTML5 routes, establish **IAS ↔ XSUAA trust** for this subaccount (BTP Cockpit → Trust Configuration).
+
+## Notes
+
+- Maximum upload size is 25 MB. CAP `cds.server.body_parser.limit` is `25mb` so base64 JSON uploads are not rejected at the default Express 100 KB limit (HTTP 413).
+- Original file bytes are stored on the `Templates.content` media property.
+- UI5 is loaded from `https://ui5.sap.com` so the app runs without a local UI5 tooling install.

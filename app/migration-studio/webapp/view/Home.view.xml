@@ -1,0 +1,85 @@
+<mvc:View
+  controllerName="datavapte.migration.studio.controller.Home"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:u="sap.ui.unified">
+  <Page id="homePage" title="{i18n>appTitle}" class="sapUiResponsiveContentPadding">
+    <customHeader>
+      <Bar class="dmsHeader">
+        <contentLeft>
+          <Title text="{i18n>appTitle}" level="H1" />
+        </contentLeft>
+        <contentRight>
+          <Text text="{i18n>appSubtitle}" />
+        </contentRight>
+      </Bar>
+    </customHeader>
+    <content>
+      <VBox class="sapUiSmallMargin">
+        <Title text="{i18n>uploadTitle}" level="H2" class="sapUiSmallMarginBottom" />
+        <Text text="{i18n>uploadDescription}" class="sapUiSmallMarginBottom" />
+        <u:FileUploader
+          id="fileUploader"
+          name="template"
+          width="28rem"
+          tooltip="{i18n>uploadTooltip}"
+          fileType="xlsx,xlsm,xls,xml"
+          placeholder="{i18n>uploadPlaceholder}"
+          sameFilenameAllowed="true"
+          buttonText="{i18n>browse}"
+          change=".onFileChange"
+          style="Emphasized"
+          class="sapUiSmallMarginBottom" />
+        <HBox wrap="Wrap" class="sapUiTinyMarginBottom">
+          <Button
+            id="uploadButton"
+            text="{i18n>uploadAndOpen}"
+            type="Emphasized"
+            icon="sap-icon://excel-attachment"
+            enabled="false"
+            press=".onUpload" />
+          <Button
+            id="sampleButton"
+            text="{i18n>loadSample}"
+            type="Ghost"
+            class="sapUiTinyMarginBegin"
+            press=".onLoadSample" />
+        </HBox>
+        <Text id="selectedFileName" class="sapUiTinyMarginTop sapUiMutedText" text="" />
+      </VBox>
+
+      <Panel headerText="{i18n>recentTemplates}" expandable="false" class="sapUiSmallMargin">
+        <Table
+          id="templateTable"
+          items="{app>/templates}"
+          noDataText="{i18n>noTemplates}"
+          growing="true"
+          growingThreshold="20"
+          mode="None">
+          <columns>
+            <Column><Text text="{i18n>colFile}" /></Column>
+            <Column><Text text="{i18n>colObject}" /></Column>
+            <Column demandPopin="true" minScreenWidth="Tablet"><Text text="{i18n>colSheets}" /></Column>
+            <Column demandPopin="true" minScreenWidth="Tablet"><Text text="{i18n>colFields}" /></Column>
+            <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colRows}" /></Column>
+            <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colStatus}" /></Column>
+            <Column hAlign="End" width="8rem"><Text text="" /></Column>
+          </columns>
+          <items>
+            <ColumnListItem type="Navigation" press=".onOpenTemplate">
+              <cells>
+                <ObjectIdentifier title="{app>fileName}" text="{app>parseMessage}" />
+                <Text text="{app>objectName}" />
+                <ObjectNumber number="{app>sheetCount}" unit="tabs" />
+                <ObjectNumber number="{app>fieldCount}" unit="fields" />
+                <ObjectNumber number="{app>rowCount}" unit="rows" />
+                <ObjectStatus text="{app>status}" state="Success" />
+                <Button text="{i18n>open}" type="Transparent" press=".onOpenTemplate" />
+              </cells>
+            </ColumnListItem>
+          </items>
+        </Table>
+      </Panel>
+    </content>
+  </Page>
+</mvc:View>

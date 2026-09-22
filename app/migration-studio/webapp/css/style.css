@@ -1,0 +1,38 @@
+.dmsHeader {
+  background: #003366;
+}
+.dmsHeader .sapMTitle,
+.dmsHeader .sapMText,
+.dmsHeader .sapMObjStatusText {
+  color: #ffffff;
+}
+.dmsHeader .sapMBtnDefault {
+  color: #ffffff;
+}
+
+.dmsWorkbook {
+  height: calc(100vh - 6rem);
+}
+
+.dmsIconTabBar,
+.dmsIconTabBar.sapMITB,
+.dmsEditorPane {
+  height: 100%;
+}
+
+.dmsIconTabBar .sapMITBContainerContent {
+  min-height: 22rem;
+}
+
+.dmsEditableTable {
+  width: 100%;
+}
+
+.dmsEditableTable .sapUiTableCCnt,
+.dmsEditableTable .sapUiTableCtrlScr {
+  background: #ffffff;
+}
+
+.dmsEditableTable .sapMInputBaseInner {
+  min-width: 6rem;
+}

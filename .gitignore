@@ -1,0 +1,19 @@
+node_modules/
+gen/
+*.sqlite
+*.sqlite-*
+.cds-tool/
+default-env.json
+.env
+.DS_Store
+coverage/
+tmp/
+*.log
+mta_archives/
+*.mtar
+app/migration-studio/dist/
+app/html5-content/resources/*.zip
+app/router/resources/
+
+# auto generated wildcard
+db/.env

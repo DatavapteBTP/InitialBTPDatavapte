@@ -1,0 +1,80 @@
+'use strict';
+
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+
+describe('Launchpad / destination wiring', () => {
+  it('keeps GACD destination-content entries service-based', () => {
+    const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
+    const content = mta.split('datavapte-migration-destination-content')[1] || '';
+    const destBlock = content.split('datavapte-migration-app-content')[0];
+    assert.equal(destBlock.includes('Name: datavapte-migration-srv-api'), false);
+    assert.match(destBlock, /ServiceInstanceName: datavapte-migration-html5-app-host-service/);
+    assert.match(destBlock, /ServiceInstanceName: datavapte-migration-xsuaa-service/);
+  });
+
+  it('creates the CAP destination in destination-service init_data', () => {
+    const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
+    const initData = mta.split('init_data:')[1] || '';
+    const destService = initData.split('service: destination')[0];
+    assert.match(destService, /Name: datavapte-migration-srv-api/);
+    assert.match(destService, /Authentication: NoAuthentication/);
+    assert.match(destService, /URL: ~\{srv-api\/srv-url\}/);
+    assert.match(
+      mta,
+      /- name: datavapte-migration-destination-service\n  type: org\.cloudfoundry\.managed-service\n  requires:\n  - name: srv-api/
+    );
+  });
+
+  it('includes a standalone approuter module', () => {
+    const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
+    assert.match(mta, /type: approuter\.nodejs/);
+    assert.match(mta, /path: app\/router/);
+    assert.match(mta, /memory: 512M/);
+    const routerXsApp = JSON.parse(fs.readFileSync(path.join(ROOT, 'app/router/xs-app.json'), 'utf8'));
+    assert.equal(routerXsApp.welcomeFile, '/index.html');
+    assert.equal(routerXsApp.authenticationMethod, 'none');
+    assert.equal(routerXsApp.routes.some((route) => route.localDir === 'resources'), true);
+    assert.equal(routerXsApp.routes.some((route) => route.service === 'html5-apps-repo-rt'), false);
+    assert.match(mta, /cp -R app\/migration-studio\/webapp\/\. gen\/srv\/webapp\//);
+  });
+
+  it('packages the UI5 webapp into the standalone approuter', () => {
+    const { execFileSync } = require('child_process');
+    const routerDir = path.join(ROOT, 'app/router');
+    execFileSync(process.execPath, [path.join(routerDir, 'build.js')], { cwd: routerDir, stdio: 'pipe' });
+    assert.equal(fs.existsSync(path.join(routerDir, 'resources', 'index.html')), true);
+    assert.equal(
+      fs.existsSync(path.join(routerDir, 'resources', 'AppRouterDatavapte.datavaptemigrationstudio-1.0.0', 'index.html')),
+      true
+    );
+  });
+
+  it('calls CAP directly from Launchpad instead of a Work Zone destination', () => {
+    const service = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/model/Service.js'),
+      'utf8'
+    );
+    assert.match(service, /the-innovapte-company-dev-space-datavapte-migration-srv/);
+    assert.match(service, /isLaunchpad/);
+    const server = fs.readFileSync(path.join(ROOT, 'srv/server.js'), 'utf8');
+    assert.match(server, /Access-Control-Allow-Origin/);
+  });
+
+  it('raises the CAP JSON body limit for Excel uploads', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    assert.equal(pkg.cds.server.body_parser.limit, '25mb');
+  });
+
+  it('uses app-relative OData URLs in the UI5 manifest', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(ROOT, 'app/migration-studio/webapp/manifest.json'), 'utf8')
+    );
+    assert.equal(manifest['sap.app'].dataSources.mainService.uri, 'odata/v4/migration/');
+    assert.equal(manifest['sap.cloud'].service, 'AppRouterDatavapte');
+  });
+});
