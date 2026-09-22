@@ -13,6 +13,7 @@ mta_archives/
 *.mtar
 app/migration-studio/dist/
 app/html5-content/resources/*.zip
+app/router/resources/
 
 # auto generated wildcard
 db/.env

@@ -34,8 +34,22 @@ describe('Launchpad / destination wiring', () => {
     const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
     assert.match(mta, /type: approuter\.nodejs/);
     assert.match(mta, /path: app\/router/);
+    assert.match(mta, /memory: 512M/);
     const routerXsApp = JSON.parse(fs.readFileSync(path.join(ROOT, 'app/router/xs-app.json'), 'utf8'));
-    assert.match(routerXsApp.welcomeFile, /AppRouterDatavapte\.datavaptemigrationstudio/);
+    assert.equal(routerXsApp.welcomeFile, '/index.html');
+    assert.equal(routerXsApp.routes.some((route) => route.localDir === 'resources'), true);
+    assert.equal(routerXsApp.routes.some((route) => route.service === 'html5-apps-repo-rt'), false);
+  });
+
+  it('packages the UI5 webapp into the standalone approuter', () => {
+    const { execFileSync } = require('child_process');
+    const routerDir = path.join(ROOT, 'app/router');
+    execFileSync(process.execPath, [path.join(routerDir, 'build.js')], { cwd: routerDir, stdio: 'pipe' });
+    assert.equal(fs.existsSync(path.join(routerDir, 'resources', 'index.html')), true);
+    assert.equal(
+      fs.existsSync(path.join(routerDir, 'resources', 'AppRouterDatavapte.datavaptemigrationstudio-1.0.0', 'index.html')),
+      true
+    );
   });
 
   it('calls CAP directly from Launchpad instead of a Work Zone destination', () => {

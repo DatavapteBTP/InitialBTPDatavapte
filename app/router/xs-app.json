@@ -1,5 +1,5 @@
 {
-  "welcomeFile": "/AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html",
+  "welcomeFile": "/index.html",
   "authenticationMethod": "route",
   "sessionTimeout": 60,
   "routes": [
@@ -11,10 +11,15 @@
       "csrfProtection": false
     },
     {
-      "source": "^(/.*)$",
-      "target": "$1",
-      "service": "html5-apps-repo-rt",
-      "authenticationType": "xsuaa"
+      "source": "^/login/(.*)$",
+      "target": "/login/$1",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/(.*)$",
+      "localDir": "resources",
+      "authenticationType": "xsuaa",
+      "cacheControl": "no-cache, no-store, must-revalidate"
     }
   ]
 }
