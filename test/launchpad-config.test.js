@@ -8,18 +8,26 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('Launchpad / destination wiring', () => {
-  it('does not put unresolved srv-api placeholders into destination init_data', () => {
+  it('keeps GACD destination-content entries service-based', () => {
     const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
-    const initData = mta.split('init_data:')[1] || '';
-    const beforeResourcesEnd = initData.split('service: destination')[0];
-    assert.equal(beforeResourcesEnd.includes('~{srv-api/srv-url}'), false);
+    const content = mta.split('datavapte-migration-destination-content')[1] || '';
+    const destBlock = content.split('datavapte-migration-app-content')[0];
+    assert.equal(destBlock.includes('Name: datavapte-migration-srv-api'), false);
+    assert.match(destBlock, /ServiceInstanceName: datavapte-migration-html5-app-host-service/);
+    assert.match(destBlock, /ServiceInstanceName: datavapte-migration-xsuaa-service/);
   });
 
-  it('creates the CAP destination without OAuth2 user token exchange', () => {
+  it('creates the CAP destination in destination-service init_data', () => {
     const mta = fs.readFileSync(path.join(ROOT, 'mta.yaml'), 'utf8');
-    assert.match(mta, /Name: datavapte-migration-srv-api/);
-    assert.match(mta, /Authentication: NoAuthentication/);
-    assert.doesNotMatch(mta, /TokenServiceInstanceName: datavapte-migration-uaa$/m);
+    const initData = mta.split('init_data:')[1] || '';
+    const destService = initData.split('service: destination')[0];
+    assert.match(destService, /Name: datavapte-migration-srv-api/);
+    assert.match(destService, /Authentication: NoAuthentication/);
+    assert.match(destService, /URL: ~\{srv-api\/srv-url\}/);
+    assert.match(
+      mta,
+      /- name: datavapte-migration-destination-service\n  type: org\.cloudfoundry\.managed-service\n  requires:\n  - name: srv-api/
+    );
   });
 
   it('includes a standalone approuter module', () => {

@@ -1,6 +1,6 @@
 _schema-version: "3.2"
 ID: datavapte-migration-studio
-version: 1.0.0
+version: 1.0.1
 description: SAP BTP CAP app that turns Data Migration Excel templates into UI5 screens
 
 modules:
@@ -43,7 +43,6 @@ modules:
       parameters:
         service-key:
           name: datavapte-migration-uaa-key
-    - name: srv-api
     parameters:
       content:
         instance:
@@ -65,14 +64,6 @@ modules:
             Name: AppRouterDatavapte_datavapte-migration_uaa
             ServiceInstanceName: datavapte-migration-xsuaa-service
             ServiceKeyName: datavapte-migration-uaa-key
-            sap.cloud.service: AppRouterDatavapte
-          - Authentication: NoAuthentication
-            HTML5.DynamicDestination: true
-            HTML5.ForwardAuthToken: true
-            Name: datavapte-migration-srv-api
-            ProxyType: Internet
-            Type: HTTP
-            URL: ~{srv-api/srv-url}
             sap.cloud.service: AppRouterDatavapte
           existing_destinations_policy: update
     build-parameters:
@@ -150,6 +141,8 @@ resources:
     service-plan: hdi-shared
 - name: datavapte-migration-destination-service
   type: org.cloudfoundry.managed-service
+  requires:
+  - name: srv-api
   parameters:
     config:
       HTML5Runtime_enabled: true
@@ -161,8 +154,15 @@ resources:
             ProxyType: Internet
             Type: HTTP
             URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: datavapte-migration-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
           existing_destinations_policy: update
-      version: 1.0.0
+      version: 1.0.1
     service: destination
     service-name: datavapte-migration-destination-service
     service-plan: lite

@@ -86,7 +86,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.0.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.1.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -96,7 +96,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.0.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.0.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.1.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
@@ -109,7 +109,7 @@ This revision:
 
 - serves the HTML5 app **without** XSUAA (`authenticationMethod: none`) so `index.html` can load after IAS login
 - keeps OData routes **app-relative** under the HTML5 path
-- creates the CAP destination with `NoAuthentication` + `HTML5.ForwardAuthToken` (no IAS→XSUAA exchange on API calls)
+- creates the CAP destination in destination-service `init_data` (`NoAuthentication` + `HTML5.ForwardAuthToken`). Do not put this URL destination in `destination-content` — GACD requires `ServiceInstanceName` there and deploy fails.
 - adds a **standalone approuter** that uses the XSUAA login flow (this path works even when Work Zone IAS trust is missing)
 
 After `mbt build && cf deploy`, open either:
