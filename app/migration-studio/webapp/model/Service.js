@@ -2,7 +2,9 @@ sap.ui.define([], function () {
   "use strict";
 
   function appBase() {
-    return sap.ui.require.toUrl("datavapte.migration.studio/").replace(/\/?$/, "/");
+    const path = String(location.pathname || "/");
+    if (path.endsWith("/")) return path;
+    return path.replace(/\/[^/]*$/, "/");
   }
 
   function isDeployedHtml5() {
@@ -20,7 +22,7 @@ sap.ui.define([], function () {
       return "/" + rel;
     },
     sampleUrl: function () {
-      return appBase() + "sample/Source_data_for_Bank.xml";
+      return this.url("sample/Source_data_for_Bank.xml");
     }
   };
 });
