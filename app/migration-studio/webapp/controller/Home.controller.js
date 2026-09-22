@@ -1,8 +1,9 @@
 sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/m/MessageBox",
-  "sap/m/MessageToast"
-], function (Controller, MessageBox, MessageToast) {
+  "sap/m/MessageToast",
+  "datavapte/migration/studio/model/Service"
+], function (Controller, MessageBox, MessageToast, Service) {
   "use strict";
 
   return Controller.extend("datavapte.migration.studio.controller.Home", {
@@ -19,7 +20,7 @@ sap.ui.define([
 
     loadTemplates: function () {
       const oApp = this.getOwnerComponent().getModel("app");
-      fetch("/odata/v4/migration/Templates?$orderby=createdAt desc&$select=ID,fileName,objectName,status,sheetCount,fieldCount,rowCount,parseMessage,createdAt")
+      fetch(Service.url("odata/v4/migration/Templates?$orderby=createdAt desc&$select=ID,fileName,objectName,status,sheetCount,fieldCount,rowCount,parseMessage,createdAt"))
         .then((res) => {
           if (!res.ok) throw new Error("Could not load templates.");
           return res.json();
@@ -51,7 +52,7 @@ sap.ui.define([
 
     onLoadSample: function () {
       this._setBusy(true, "Loading sample Bank Master template…");
-      fetch("/sample/Source_data_for_Bank.xml")
+      fetch(Service.sampleUrl())
         .then((res) => {
           if (!res.ok) throw new Error("Sample template is not available.");
           return res.arrayBuffer();
@@ -78,7 +79,7 @@ sap.ui.define([
       const that = this;
       this._setBusy(true, "Reading Excel tabs…");
       return readAsBase64(file)
-        .then((base64) => fetch("/odata/v4/migration/uploadTemplate", {
+        .then((base64) => fetch(Service.url("odata/v4/migration/uploadTemplate"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

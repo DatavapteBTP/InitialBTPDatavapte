@@ -13,5 +13,21 @@
       "description": "Migration Studio user",
       "scope-references": ["$XSAPPNAME.User"]
     }
-  ]
+  ],
+  "role-collections": [
+    {
+      "name": "DatavapteMigrationStudio",
+      "description": "Datavapte Migration Studio users",
+      "role-template-references": ["$XSAPPNAME.User"]
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://*.cfapps.us10.hana.ondemand.com/**",
+      "https://*.launchpad.cfapps.us10.hana.ondemand.com/**",
+      "https://*.applicationstudio.cloud.sap/**",
+      "http://localhost:5000/**",
+      "http://localhost:4004/**"
+    ]
+  }
 }

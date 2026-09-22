@@ -101,6 +101,26 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.0.mtar
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
 
+### Launchpad “Internal Server Error” after deploy
+
+The Work Zone / Launchpad site logs in with **IAS**. The HTML5 app destinations used **XSUAA token exchange**. After IAS login the managed approuter fails that exchange and returns **500** on `index.html` (SAP KBA 3463753). The UI also called absolute `/odata/...` URLs on the Launchpad host, which is not the CAP service.
+
+This revision:
+
+- serves the HTML5 app **without** XSUAA (`authenticationMethod: none`) so `index.html` can load after IAS login
+- keeps OData routes **app-relative** under the HTML5 path
+- creates the CAP destination with `NoAuthentication` + `HTML5.ForwardAuthToken` (no IAS→XSUAA exchange on API calls)
+- adds a **standalone approuter** that uses the XSUAA login flow (this path works even when Work Zone IAS trust is missing)
+
+After `mbt build && cf deploy`, open either:
+
+1. Launchpad (IAS):  
+   `https://<site>.launchpad.cfapps.us10.hana.ondemand.com/<dest-guid>.AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html`
+2. Standalone approuter (XSUAA):  
+   `https://<org>-<space>-datavapte-migration.cfapps.us10.hana.ondemand.com/AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html`
+
+Assign role collection **DatavapteMigrationStudio** if you turn CAP `restrict_all_services` back on. To stop the Launchpad 500 permanently while keeping XSUAA on the HTML5 routes, establish **IAS ↔ XSUAA trust** for this subaccount (BTP Cockpit → Trust Configuration).
+
 ## Notes
 
 - Maximum upload size is 25 MB.

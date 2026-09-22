@@ -1,19 +1,20 @@
 {
-  "welcomeFile": "/index.html",
-  "authenticationMethod": "none",
+  "welcomeFile": "/AppRouterDatavapte.datavaptemigrationstudio-1.0.0/index.html",
+  "authenticationMethod": "route",
+  "sessionTimeout": 60,
   "routes": [
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
       "destination": "datavapte-migration-srv-api",
-      "authenticationType": "none",
+      "authenticationType": "xsuaa",
       "csrfProtection": false
     },
     {
-      "source": "^(.*)$",
+      "source": "^(/.*)$",
       "target": "$1",
       "service": "html5-apps-repo-rt",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa"
     }
   ]
 }

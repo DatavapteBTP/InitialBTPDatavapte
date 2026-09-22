@@ -5,8 +5,9 @@ sap.ui.define([
   "sap/m/Label",
   "sap/m/MessageBox",
   "sap/m/MessageToast",
-  "sap/ui/table/Column"
-], function (Controller, IconTabFilter, Input, Label, MessageBox, MessageToast, Column) {
+  "sap/ui/table/Column",
+  "datavapte/migration/studio/model/Service"
+], function (Controller, IconTabFilter, Input, Label, MessageBox, MessageToast, Column, Service) {
   "use strict";
 
   return Controller.extend("datavapte.migration.studio.controller.Viewer", {
@@ -91,8 +92,8 @@ sap.ui.define([
     _loadTemplate: function (templateId) {
       const oApp = this.getOwnerComponent().getModel("app");
       oApp.setProperty("/busy", true);
-      const url = "/odata/v4/migration/Templates(" + templateId + ")" +
-        "?$expand=sheets($expand=fields,rows;$orderby=sequence)";
+      const url = Service.url("odata/v4/migration/Templates(" + templateId + ")" +
+        "?$expand=sheets($expand=fields,rows;$orderby=sequence)");
       fetch(url)
         .then((res) => {
           if (!res.ok) throw new Error("Template could not be loaded.");
@@ -233,7 +234,7 @@ sap.ui.define([
         })))
       };
       oApp.setProperty("/busy", true);
-      return fetch("/odata/v4/migration/saveSheetData", {
+      return fetch(Service.url("odata/v4/migration/saveSheetData"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

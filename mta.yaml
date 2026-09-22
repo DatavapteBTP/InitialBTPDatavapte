@@ -43,20 +43,38 @@ modules:
       parameters:
         service-key:
           name: datavapte-migration-uaa-key
+    - name: srv-api
     parameters:
       content:
         instance:
           destinations:
+          - Name: AppRouterDatavapte_html_repo_host
+            ServiceInstanceName: datavapte-migration-html5-app-host-service
+            ServiceKeyName: datavapte-migration_html_repo_host-key
+            sap.cloud.service: AppRouterDatavapte
           - Name: AppRouterDatavapte_datavapte-migration_html_repo_host
             ServiceInstanceName: datavapte-migration-html5-app-host-service
             ServiceKeyName: datavapte-migration_html_repo_host-key
+            sap.cloud.service: AppRouterDatavapte
+          - Authentication: OAuth2UserTokenExchange
+            Name: AppRouterDatavapte_uaa
+            ServiceInstanceName: datavapte-migration-xsuaa-service
+            ServiceKeyName: datavapte-migration-uaa-key
             sap.cloud.service: AppRouterDatavapte
           - Authentication: OAuth2UserTokenExchange
             Name: AppRouterDatavapte_datavapte-migration_uaa
             ServiceInstanceName: datavapte-migration-xsuaa-service
             ServiceKeyName: datavapte-migration-uaa-key
             sap.cloud.service: AppRouterDatavapte
-          existing_destinations_policy: ignore
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: datavapte-migration-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+            sap.cloud.service: AppRouterDatavapte
+          existing_destinations_policy: update
     build-parameters:
       no-source: true
   - name: datavapte-migration-app-content
@@ -89,6 +107,24 @@ modules:
         group: destinations
         properties:
           name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+
+  - name: datavapte-migration
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: datavapte-migration_html_repo_runtime
+      - name: datavapte-migration-destination-service
+      - name: datavapte-migration-uaa
+      - name: srv-api
+        group: destinations
+        properties:
+          name: datavapte-migration-srv-api
           url: ~{srv-url}
           forwardAuthToken: true
 
@@ -125,27 +161,11 @@ resources:
             ProxyType: Internet
             Type: HTTP
             URL: https://ui5.sap.com
-          - Authentication: NoAuthentication
-            HTML5.DynamicDestination: true
-            HTML5.ForwardAuthToken: true
-            Name: datavapte-migration-srv-api
-            ProxyType: Internet
-            Type: HTTP
-            URL: ~{srv-api/srv-url}
-          - Authentication: NoAuthentication
-            HTML5.DynamicDestination: true
-            HTML5.ForwardAuthToken: true
-            Name: srv-api
-            ProxyType: Internet
-            Type: HTTP
-            URL: ~{srv-api/srv-url}
           existing_destinations_policy: update
       version: 1.0.0
     service: destination
     service-name: datavapte-migration-destination-service
     service-plan: lite
-  requires:
-  - name: srv-api
 - name: datavapte-migration-connectivity-service
   type: org.cloudfoundry.managed-service
   parameters:
@@ -159,6 +179,12 @@ resources:
     service-plan: app-host
     service-keys:
       - name: datavapte-migration_html_repo_host-key
+- name: datavapte-migration_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: datavapte-migration-html5-app-runtime-service
+    service-plan: app-runtime
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true

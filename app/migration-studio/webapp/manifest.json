@@ -10,7 +10,7 @@
     },
     "dataSources": {
       "mainService": {
-        "uri": "/odata/v4/migration/",
+        "uri": "odata/v4/migration/",
         "type": "OData",
         "settings": {
           "odataVersion": "4.0"
@@ -99,5 +99,8 @@
   "sap.cloud": {
     "public": true,
     "service": "AppRouterDatavapte"
+  },
+  "sap.flp": {
+    "type": "application"
   }
 }
