@@ -35,41 +35,35 @@ module.exports = class MigrationService extends cds.ApplicationService {
       }
 
       const id = cds.utils.uuid();
-      await INSERT.into(Templates).entries({
+      try {
+        await INSERT.into(Templates).entries({
+          ID: id,
+          fileName,
+          mediaType,
+          fileSize: buffer.length,
+          objectName: parsed.objectName,
+          status: parsed.status,
+          sheetCount: parsed.sheetCount,
+          fieldCount: parsed.fieldCount,
+          rowCount: parsed.rowCount,
+          parseMessage: parsed.parseMessage,
+          content: buffer,
+          sheets: parsed.sheets
+        });
+      } catch (error) {
+        req.reject(500, error.message || 'Could not store the parsed template.');
+      }
+
+      return {
         ID: id,
         fileName,
-        mediaType,
-        fileSize: buffer.length,
         objectName: parsed.objectName,
         status: parsed.status,
         sheetCount: parsed.sheetCount,
         fieldCount: parsed.fieldCount,
         rowCount: parsed.rowCount,
-        parseMessage: parsed.parseMessage,
-        content: buffer,
-        sheets: parsed.sheets
-      });
-
-      return SELECT.one
-        .from(Templates, (t) => {
-          t.ID;
-          t.fileName;
-          t.mediaType;
-          t.fileSize;
-          t.objectName;
-          t.status;
-          t.sheetCount;
-          t.fieldCount;
-          t.rowCount;
-          t.parseMessage;
-          t.createdAt;
-          t.sheets((s) => {
-            s`.*`;
-            s.fields((f) => f`.*`);
-            s.rows((r) => r`.*`);
-          });
-        })
-        .where({ ID: id });
+        parseMessage: parsed.parseMessage
+      };
     });
 
     this.on('saveSheetData', async (req) => {

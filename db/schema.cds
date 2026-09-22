@@ -37,7 +37,7 @@ entity Fields : cuid {
   sheet          : Association to Sheets;
   columnIndex    : Integer;
   technicalName  : String(128);
-  description    : String(512);
+  description    : String(2000);
   dataType       : String(40);
   length         : String(20);
   decimals       : String(10);

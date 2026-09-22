@@ -103,6 +103,28 @@ describe('MigrationService upload', () => {
     assert.equal(data.sheetCount, 4);
   });
 
+  it('uploads a large Product Migration Cockpit XML without 500', async () => {
+    const custom = path.join(
+      '/home/ubuntu/.cursor/projects/workspace/uploads/CUSTOM_F4_009_1_75b7.xml'
+    );
+    if (!fs.existsSync(custom)) return;
+    const { url } = await test;
+    const content = fs.readFileSync(custom).toString('base64');
+    const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'CUSTOM_F4_009 1.xml',
+        mediaType: 'application/xml',
+        content
+      })
+    });
+    const data = await response.json();
+    assert.equal(response.status, 200, data.error?.message || JSON.stringify(data));
+    assert.equal(data.sheetCount, 29);
+    assert.ok(data.fieldCount >= 600);
+  });
+
   it('serves the UI5 app from the CAP host', async () => {
     const { url } = await test;
     const home = await fetch(url + '/index.html');

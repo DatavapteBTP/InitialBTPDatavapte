@@ -174,7 +174,7 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
       Boolean(catalog?.mandatory);
     const isKey = KEY_MARK_RE.test(technicalName) || Boolean(catalog?.isKey);
 
-    fields.push({
+    fields.push(fitField({
       columnIndex,
       technicalName: stripMarks(technicalName) || catalog?.technicalName || `COL_${columnIndex + 1}`,
       description: stripMarks(description) || catalog?.description || stripMarks(technicalName),
@@ -185,7 +185,7 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
       isKey,
       groupName: groupName || catalog?.groupName || '',
       sapFieldName: catalog?.sapFieldName || stripMarks(technicalName)
-    });
+    }));
   }
 
   const dataRows = [];
@@ -222,7 +222,7 @@ function parseGenericDataSheet(raw, rows) {
     .map((header, columnIndex) => {
       const description = String(header || '').trim();
       if (!description) return null;
-      return {
+      return fitField({
         columnIndex,
         technicalName: slugField(description, columnIndex),
         description: stripMarks(description),
@@ -233,7 +233,7 @@ function parseGenericDataSheet(raw, rows) {
         isKey: KEY_MARK_RE.test(description),
         groupName: raw.name,
         sapFieldName: ''
-      };
+      });
     })
     .filter(Boolean);
 
@@ -268,7 +268,7 @@ function parseFieldListSheet(rows) {
   const fields = headers
     .map((description, columnIndex) => {
       if (!description) return null;
-      return {
+      return fitField({
         columnIndex,
         technicalName: slugField(description, columnIndex),
         description,
@@ -279,7 +279,7 @@ function parseFieldListSheet(rows) {
         isKey: false,
         groupName: 'Field List',
         sapFieldName: ''
-      };
+      });
     })
     .filter(Boolean);
 
@@ -421,6 +421,37 @@ function firstNonEmpty(row) {
   return values.map((c) => String(c || '').trim()).find(Boolean) || '';
 }
 
+const FIELD_LIMITS = {
+  technicalName: 128,
+  description: 2000,
+  dataType: 40,
+  length: 20,
+  decimals: 10,
+  groupName: 255,
+  sapFieldName: 128
+};
+
+function decodeXmlText(value) {
+  return String(value || '')
+    .replace(/&#10;/g, '\n')
+    .replace(/&#13;/g, '\n')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+}
+
+function fitField(field) {
+  const next = Object.assign({}, field);
+  if (next.description) next.description = decodeXmlText(next.description);
+  if (next.groupName) next.groupName = decodeXmlText(next.groupName);
+  for (const [key, max] of Object.entries(FIELD_LIMITS)) {
+    if (next[key] != null) next[key] = String(next[key]).slice(0, max);
+  }
+  return next;
+}
+
 function stripMarks(value) {
   return String(value || '')
     .replace(/\s*\*\s*/g, ' ')
@@ -493,5 +524,6 @@ module.exports = {
   detectDataFormat,
   parseTypeLength,
   gridFromSheet,
-  readWorkbook
+  readWorkbook,
+  fitField
 };

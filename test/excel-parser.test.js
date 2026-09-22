@@ -94,4 +94,20 @@ describe('migration template parser', () => {
     assert.equal(parsed.sheets[0].fields[0].description, 'Customer');
     assert.equal(parsed.sheets[0].dataRowCount, 2);
   });
+
+  it('fits Migration Cockpit help text into the description column', () => {
+    const { fitField } = require('../srv/lib/excel-parser');
+    const fitted = fitField({
+      columnIndex: 0,
+      technicalName: 'MSTAE',
+      description: 'Valuation Type&#10;&#10;' + 'x'.repeat(2500),
+      dataType: 'CHAR',
+      length: '10',
+      decimals: '',
+      groupName: 'Basic Data',
+      sapFieldName: 'MSTAE'
+    });
+    assert.ok(fitted.description.startsWith('Valuation Type\n\n'));
+    assert.equal(fitted.description.length, 2000);
+  });
 });
