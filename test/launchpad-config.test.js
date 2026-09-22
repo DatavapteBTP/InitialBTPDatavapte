@@ -37,8 +37,10 @@ describe('Launchpad / destination wiring', () => {
     assert.match(mta, /memory: 512M/);
     const routerXsApp = JSON.parse(fs.readFileSync(path.join(ROOT, 'app/router/xs-app.json'), 'utf8'));
     assert.equal(routerXsApp.welcomeFile, '/index.html');
+    assert.equal(routerXsApp.authenticationMethod, 'none');
     assert.equal(routerXsApp.routes.some((route) => route.localDir === 'resources'), true);
     assert.equal(routerXsApp.routes.some((route) => route.service === 'html5-apps-repo-rt'), false);
+    assert.match(mta, /cp -R app\/migration-studio\/webapp\/\. gen\/srv\/webapp\//);
   });
 
   it('packages the UI5 webapp into the standalone approuter', () => {

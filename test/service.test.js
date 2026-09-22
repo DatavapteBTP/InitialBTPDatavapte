@@ -81,6 +81,15 @@ describe('MigrationService upload', () => {
     assert.match(after.rows[0].values, /Edited Bank/);
   });
 
+  it('serves the UI5 app from the CAP host', async () => {
+    const { url } = await test;
+    const home = await fetch(url + '/index.html');
+    const html = await home.text();
+    assert.equal(home.status, 200, html);
+    assert.match(html, /Datavapte Migration Studio/);
+    assert.match(html, /ui5\.sap\.com/);
+  });
+
   it('rejects unsupported file types', async () => {
     const { url } = await test;
     const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {

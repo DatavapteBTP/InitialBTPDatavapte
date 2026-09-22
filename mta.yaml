@@ -1,6 +1,6 @@
 _schema-version: "3.2"
 ID: datavapte-migration-studio
-version: 1.0.3
+version: 1.0.4
 description: SAP BTP CAP app that turns Data Migration Excel templates into UI5 screens
 
 modules:
@@ -109,13 +109,7 @@ modules:
       disk-quota: 1024M
       memory: 512M
       instances: 1
-    build-parameters:
-      builder: custom
-      commands:
-        - npm ci || npm install
-        - npm run build
     requires:
-      - name: datavapte-migration-uaa
       - name: srv-api
         group: destinations
         properties:
@@ -198,4 +192,7 @@ build-parameters:
     commands:
     - npm ci
     - npx cds build --production
+    - mkdir -p gen/srv/webapp
+    - cp -R app/migration-studio/webapp/. gen/srv/webapp/
+    - node app/router/build.js
   

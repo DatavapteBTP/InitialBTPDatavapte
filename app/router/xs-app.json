@@ -1,24 +1,18 @@
 {
   "welcomeFile": "/index.html",
-  "authenticationMethod": "route",
-  "sessionTimeout": 60,
+  "authenticationMethod": "none",
   "routes": [
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
       "destination": "datavapte-migration-srv-api",
-      "authenticationType": "xsuaa",
+      "authenticationType": "none",
       "csrfProtection": false
-    },
-    {
-      "source": "^/login/(.*)$",
-      "target": "/login/$1",
-      "authenticationType": "none"
     },
     {
       "source": "^/(.*)$",
       "localDir": "resources",
-      "authenticationType": "xsuaa",
+      "authenticationType": "none",
       "cacheControl": "no-cache, no-store, must-revalidate"
     }
   ]
