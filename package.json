@@ -78,6 +78,11 @@
         "auth": "dummy"
       }
     },
+    "server": {
+      "body_parser": {
+        "limit": "25mb"
+      }
+    },
     "hana": {
       "deploy-format": "hdbtable"
     }

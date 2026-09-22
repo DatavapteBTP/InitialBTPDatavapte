@@ -81,6 +81,28 @@ describe('MigrationService upload', () => {
     assert.match(after.rows[0].values, /Edited Bank/);
   });
 
+  it('accepts uploads larger than the default 100kb JSON body limit', async () => {
+    const { url } = await test;
+    const xml = fs.readFileSync(FIXTURE_XML, 'utf8');
+    const padded = xml.replace('</Workbook>', `<!-- ${'x'.repeat(120000)} --></Workbook>`);
+    const content = Buffer.from(padded).toString('base64');
+    const body = JSON.stringify({
+      fileName: 'Source_data_for_Bank.xml',
+      mediaType: 'application/xml',
+      content
+    });
+    assert.ok(body.length > 100 * 1024);
+    const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    });
+    const data = await response.json();
+    assert.equal(response.status, 200, data.error?.message || JSON.stringify(data));
+    assert.ok(data.ID);
+    assert.equal(data.sheetCount, 4);
+  });
+
   it('serves the UI5 app from the CAP host', async () => {
     const { url } = await test;
     const home = await fetch(url + '/index.html');

@@ -86,7 +86,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.4.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.5.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -96,7 +96,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.4.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.4.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.5.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
@@ -126,6 +126,6 @@ Assign role collection **DatavapteMigrationStudio** if you turn CAP `restrict_al
 
 ## Notes
 
-- Maximum upload size is 25 MB.
+- Maximum upload size is 25 MB. CAP `cds.server.body_parser.limit` is `25mb` so base64 JSON uploads are not rejected at the default Express 100 KB limit (HTTP 413).
 - Original file bytes are stored on the `Templates.content` media property.
 - UI5 is loaded from `https://ui5.sap.com` so the app runs without a local UI5 tooling install.

@@ -1,6 +1,6 @@
 _schema-version: "3.2"
 ID: datavapte-migration-studio
-version: 1.0.4
+version: 1.0.5
 description: SAP BTP CAP app that turns Data Migration Excel templates into UI5 screens
 
 modules:

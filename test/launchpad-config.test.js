@@ -65,6 +65,11 @@ describe('Launchpad / destination wiring', () => {
     assert.match(server, /Access-Control-Allow-Origin/);
   });
 
+  it('raises the CAP JSON body limit for Excel uploads', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    assert.equal(pkg.cds.server.body_parser.limit, '25mb');
+  });
+
   it('uses app-relative OData URLs in the UI5 manifest', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'app/migration-studio/webapp/manifest.json'), 'utf8')

@@ -5,6 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 
+cds.env.server = cds.env.server || {};
+cds.env.server.body_parser = Object.assign({ limit: '25mb' }, cds.env.server.body_parser);
+
 function resolveWebapp() {
   const candidates = [
     path.join(__dirname, 'webapp'),
