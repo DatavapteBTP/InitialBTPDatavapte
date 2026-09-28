@@ -133,6 +133,41 @@ sap.ui.define([
         });
     },
 
+    onDeleteTemplate: function (oEvent) {
+      if (oEvent.stopPropagation) oEvent.stopPropagation();
+      const oCtx = oEvent.getSource().getBindingContext("app") ||
+        oEvent.getSource().getParent().getBindingContext("app");
+      if (!oCtx) return;
+      const that = this;
+      const id = oCtx.getProperty("ID");
+      const fileName = oCtx.getProperty("fileName") || "this template";
+      const i18n = this.getOwnerComponent().getModel("i18n");
+      MessageBox.confirm(
+        (i18n.getProperty("deleteTemplateConfirm") || "").replace("{0}", fileName),
+        {
+          title: i18n.getProperty("deleteTemplateTitle"),
+          actions: [MessageBox.Action.DELETE, MessageBox.Action.CANCEL],
+          emphasizedAction: MessageBox.Action.DELETE,
+          onClose: function (action) {
+            if (action !== MessageBox.Action.DELETE) return;
+            that._setBusy(true, "Deleting template…");
+            Service.deleteTemplate(id)
+              .then(function () {
+                that._setBusy(false);
+                MessageToast.show(
+                  (i18n.getProperty("deletedTemplate") || "").replace("{0}", fileName)
+                );
+                that.loadTemplates();
+              })
+              .catch(function (err) {
+                that._setBusy(false);
+                MessageBox.error(err.message);
+              });
+          }
+        }
+      );
+    },
+
     _uploadFile: function (file) {
       const that = this;
       this._setBusy(true, "Reading Excel tabs…");

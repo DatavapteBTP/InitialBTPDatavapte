@@ -210,4 +210,32 @@ describe('MigrationService upload', () => {
     });
     assert.ok(response.status >= 400);
   });
+
+  it('deletes an uploaded template and its sheets', async () => {
+    const { url } = await test;
+    const content = fs.readFileSync(FIXTURE_XML).toString('base64');
+    const uploaded = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'Source_data_for_Bank.xml',
+        mediaType: 'application/xml',
+        content
+      })
+    }).then((res) => res.json());
+    assert.ok(uploaded.ID);
+
+    const del = await fetch(`${url}/odata/v4/migration/Templates(${uploaded.ID})`, {
+      method: 'DELETE'
+    });
+    assert.ok(del.status === 204 || del.ok, await del.text());
+
+    const gone = await fetch(`${url}/odata/v4/migration/Templates(${uploaded.ID})`);
+    assert.equal(gone.status, 404);
+
+    const remaining = await fetch(
+      `${url}/odata/v4/migration/Sheets?$filter=template_ID eq ${uploaded.ID}`
+    ).then((res) => res.json());
+    assert.equal((remaining.value || []).length, 0);
+  });
 });

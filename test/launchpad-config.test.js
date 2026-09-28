@@ -120,4 +120,23 @@ describe('Launchpad / destination wiring', () => {
     assert.match(component, /headerHeight: 44/);
     assert.match(component, /rowHeight: 28/);
   });
+
+  it('lets users delete uploaded templates from the home list', () => {
+    const home = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/view/Home.view.xml'),
+      'utf8'
+    );
+    const controller = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/controller/Home.controller.js'),
+      'utf8'
+    );
+    const service = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/model/Service.js'),
+      'utf8'
+    );
+    assert.match(home, /press="\.onDeleteTemplate"/);
+    assert.match(controller, /onDeleteTemplate/);
+    assert.match(controller, /MessageBox\.Action\.DELETE/);
+    assert.match(service, /method: "DELETE"/);
+  });
 });

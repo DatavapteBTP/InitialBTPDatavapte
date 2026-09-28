@@ -85,7 +85,7 @@
             <Column demandPopin="true" minScreenWidth="Tablet"><Text text="{i18n>colFields}" /></Column>
             <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colRows}" /></Column>
             <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colStatus}" /></Column>
-            <Column hAlign="End" width="14rem"><Text text="" /></Column>
+            <Column hAlign="End" width="20rem"><Text text="" /></Column>
           </columns>
           <items>
             <ColumnListItem type="Navigation" press=".onOpenTemplate">
@@ -96,9 +96,14 @@
                 <ObjectNumber number="{app>fieldCount}" unit="fields" />
                 <ObjectNumber number="{app>rowCount}" unit="rows" />
                 <ObjectStatus text="{app>status}" state="Success" />
-                <HBox justifyContent="End" wrap="Wrap">
+                <HBox justifyContent="End" wrap="Wrap" alignItems="Center">
                   <Button text="{i18n>open}" type="Transparent" press=".onOpenTemplate" class="sapUiTinyMarginEnd" />
-                  <Button text="{i18n>downloadXml}" icon="sap-icon://download" type="Transparent" press=".onDownloadXml" />
+                  <Button text="{i18n>downloadXml}" icon="sap-icon://download" type="Transparent" press=".onDownloadXml" class="sapUiTinyMarginEnd" />
+                  <Button
+                    text="{i18n>delete}"
+                    icon="sap-icon://delete"
+                    type="Transparent"
+                    press=".onDeleteTemplate" />
                 </HBox>
               </cells>
             </ColumnListItem>

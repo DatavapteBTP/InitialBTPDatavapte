@@ -67,6 +67,18 @@ sap.ui.define([], function () {
         }, 1000);
         return fileName;
       });
+    },
+    deleteTemplate: function (templateId) {
+      return fetch(this.url("odata/v4/migration/Templates(" + templateId + ")"), {
+        method: "DELETE"
+      }).then(function (res) {
+        if (res.status === 204 || res.ok) return;
+        return res.json().then(function (body) {
+          throw new Error((body.error && body.error.message) || "Could not delete the template.");
+        }, function () {
+          throw new Error("Could not delete the template.");
+        });
+      });
     }
   };
 });
