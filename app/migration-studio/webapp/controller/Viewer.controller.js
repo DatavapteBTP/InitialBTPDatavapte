@@ -202,6 +202,7 @@ sap.ui.define([
 
     _rebuildColumns: function (fields) {
       const oTable = this.byId("sheetTable");
+      if (!oTable) return;
       oTable.destroyColumns();
       fields.forEach((field) => {
         const type = [field.dataType, field.length, field.decimals ? "dec " + field.decimals : ""]

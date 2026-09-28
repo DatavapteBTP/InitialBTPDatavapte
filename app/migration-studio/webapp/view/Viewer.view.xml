@@ -61,7 +61,6 @@
                   type="Transparent"
                   tooltip="{i18n>headerHeightDecrease}"
                   visible="{app>/editor/tableVisible}"
-                  enabled="{= ${app>/table/headerHeight} > 32 }"
                   press=".onHeaderHeightDown" />
                 <Text
                   text="{app>/table/headerHeight} px"
@@ -73,7 +72,6 @@
                   type="Transparent"
                   tooltip="{i18n>headerHeightIncrease}"
                   visible="{app>/editor/tableVisible}"
-                  enabled="{= ${app>/table/headerHeight} < 120 }"
                   press=".onHeaderHeightUp" />
                 <Label
                   text="{i18n>rowHeight}"
@@ -85,7 +83,6 @@
                   type="Transparent"
                   tooltip="{i18n>rowHeightDecrease}"
                   visible="{app>/editor/tableVisible}"
-                  enabled="{= ${app>/table/rowHeight} > 24 }"
                   press=".onRowHeightDown" />
                 <Text
                   text="{app>/table/rowHeight} px"
@@ -97,7 +94,6 @@
                   type="Transparent"
                   tooltip="{i18n>rowHeightIncrease}"
                   visible="{app>/editor/tableVisible}"
-                  enabled="{= ${app>/table/rowHeight} < 72 }"
                   press=".onRowHeightUp" />
                 <Button
                   id="addRowButton"
