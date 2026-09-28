@@ -97,4 +97,27 @@ describe('Launchpad / destination wiring', () => {
       true
     );
   });
+
+  it('uses a compact table header and lets users change row height', () => {
+    const viewer = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/view/Viewer.view.xml'),
+      'utf8'
+    );
+    const controller = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/controller/Viewer.controller.js'),
+      'utf8'
+    );
+    const component = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/Component.js'),
+      'utf8'
+    );
+    assert.match(viewer, /columnHeaderHeight="\{app>\/table\/headerHeight\}"/);
+    assert.match(viewer, /rowHeight="\{app>\/table\/rowHeight\}"/);
+    assert.match(viewer, /id="headerHeightDown"/);
+    assert.match(viewer, /id="rowHeightUp"/);
+    assert.match(controller, /wrapping: false/);
+    assert.match(controller, /_nudgeTableSize/);
+    assert.match(component, /headerHeight: 44/);
+    assert.match(component, /rowHeight: 28/);
+  });
 });

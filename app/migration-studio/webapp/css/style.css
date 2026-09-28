@@ -34,7 +34,26 @@
 }
 
 .dmsEditableTable .sapMInputBaseInner {
-  min-width: 6rem;
+  min-width: 5rem;
+  min-height: 0;
+  height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.dmsEditableTable .sapUiTableColHdr .sapMLabel {
+  font-size: 0.75rem;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.dmsEditableTable .sapUiTableHeaderCell {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+
+.dmsEditableTable .sapMInputBase {
+  height: 100%;
 }
 
 .dmsStartOption {

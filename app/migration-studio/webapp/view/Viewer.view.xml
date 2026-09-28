@@ -51,6 +51,54 @@
                   state="Warning"
                   visible="{app>/editor/isMandatory}" />
                 <ToolbarSpacer />
+                <Label
+                  text="{i18n>headerHeight}"
+                  visible="{app>/editor/tableVisible}"
+                  class="sapUiTinyMarginEnd" />
+                <Button
+                  id="headerHeightDown"
+                  icon="sap-icon://less"
+                  type="Transparent"
+                  tooltip="{i18n>headerHeightDecrease}"
+                  visible="{app>/editor/tableVisible}"
+                  enabled="{= ${app>/table/headerHeight} > 32 }"
+                  press=".onHeaderHeightDown" />
+                <Text
+                  text="{app>/table/headerHeight} px"
+                  visible="{app>/editor/tableVisible}"
+                  class="sapUiTinyMarginBegin sapUiTinyMarginEnd" />
+                <Button
+                  id="headerHeightUp"
+                  icon="sap-icon://add"
+                  type="Transparent"
+                  tooltip="{i18n>headerHeightIncrease}"
+                  visible="{app>/editor/tableVisible}"
+                  enabled="{= ${app>/table/headerHeight} < 120 }"
+                  press=".onHeaderHeightUp" />
+                <Label
+                  text="{i18n>rowHeight}"
+                  visible="{app>/editor/tableVisible}"
+                  class="sapUiSmallMarginBegin sapUiTinyMarginEnd" />
+                <Button
+                  id="rowHeightDown"
+                  icon="sap-icon://less"
+                  type="Transparent"
+                  tooltip="{i18n>rowHeightDecrease}"
+                  visible="{app>/editor/tableVisible}"
+                  enabled="{= ${app>/table/rowHeight} > 24 }"
+                  press=".onRowHeightDown" />
+                <Text
+                  text="{app>/table/rowHeight} px"
+                  visible="{app>/editor/tableVisible}"
+                  class="sapUiTinyMarginBegin sapUiTinyMarginEnd" />
+                <Button
+                  id="rowHeightUp"
+                  icon="sap-icon://add"
+                  type="Transparent"
+                  tooltip="{i18n>rowHeightIncrease}"
+                  visible="{app>/editor/tableVisible}"
+                  enabled="{= ${app>/table/rowHeight} < 72 }"
+                  press=".onRowHeightUp" />
                 <Button
                   id="addRowButton"
                   text="{i18n>addRow}"
@@ -90,11 +138,11 @@
                 editable="true"
                 visibleRowCountMode="Auto"
                 minAutoRowCount="8"
-                columnHeaderHeight="92"
-                rowHeight="36"
+                columnHeaderHeight="{app>/table/headerHeight}"
+                rowHeight="{app>/table/rowHeight}"
                 enableColumnReordering="false"
                 ariaLabelledBy="sheetTitle"
-                class="dmsEditableTable sapUiSmallMarginTop" />
+                class="dmsEditableTable sapUiSizeCompact sapUiSmallMarginTop" />
             </VBox>
           </content>
         </IconTabBar>

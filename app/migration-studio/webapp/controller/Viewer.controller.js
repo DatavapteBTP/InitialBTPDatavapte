@@ -101,6 +101,22 @@ sap.ui.define([
       });
     },
 
+    onHeaderHeightDown: function () {
+      this._nudgeTableSize("headerHeight", -4, 32, 120);
+    },
+
+    onHeaderHeightUp: function () {
+      this._nudgeTableSize("headerHeight", 4, 32, 120);
+    },
+
+    onRowHeightDown: function () {
+      this._nudgeTableSize("rowHeight", -4, 24, 72);
+    },
+
+    onRowHeightUp: function () {
+      this._nudgeTableSize("rowHeight", 4, 24, 72);
+    },
+
     _loadTemplate: function (templateId) {
       const oApp = this.getOwnerComponent().getModel("app");
       oApp.setProperty("/busy", true);
@@ -187,30 +203,34 @@ sap.ui.define([
     _rebuildColumns: function (fields) {
       const oTable = this.byId("sheetTable");
       oTable.destroyColumns();
-      const showGroup = fields.some((f) => f.groupName);
       fields.forEach((field) => {
         const type = [field.dataType, field.length, field.decimals ? "dec " + field.decimals : ""]
           .filter(Boolean)
           .join(" ");
-        const labels = [];
-        if (showGroup) {
-          labels.push(new Label({ text: field.groupName || " ", wrapping: true }));
-        }
-        labels.push(new Label({
-          text: (field.description || "") + (field.mandatory ? " *" : "") + (field.isKey ? " (k)" : ""),
-          wrapping: true,
-          required: !!field.mandatory
-        }));
-        if (field.technicalName) {
-          labels.push(new Label({ text: field.technicalName, wrapping: true }));
-        }
-        if (type) {
-          labels.push(new Label({ text: type, wrapping: true }));
+        const description = (field.description || "") + (field.mandatory ? " *" : "") + (field.isKey ? " (k)" : "");
+        const meta = [field.technicalName, type].filter(Boolean).join(" · ");
+        const tooltip = [field.groupName, description, field.technicalName, type]
+          .filter(Boolean)
+          .join("\n");
+        const labels = [
+          new Label({
+            text: description || field.technicalName || " ",
+            wrapping: false,
+            tooltip: tooltip,
+            required: !!field.mandatory
+          })
+        ];
+        if (meta) {
+          labels.push(new Label({
+            text: meta,
+            wrapping: false,
+            tooltip: tooltip
+          }));
         }
         oTable.addColumn(new Column({
-          label: labels[showGroup ? 1 : 0],
+          label: labels[0],
           multiLabels: labels,
-          width: "12rem",
+          width: "10rem",
           template: new Input({
             value: "{app>col_" + field.columnIndex + "}",
             change: this.onCellChange.bind(this),
@@ -218,7 +238,23 @@ sap.ui.define([
           })
         }));
       });
-      oTable.setColumnHeaderHeight(showGroup ? 108 : 84);
+      this._applyTableSizes();
+    },
+
+    _nudgeTableSize: function (property, delta, min, max) {
+      const oApp = this.getOwnerComponent().getModel("app");
+      const current = Number(oApp.getProperty("/table/" + property)) || min;
+      const next = Math.max(min, Math.min(max, current + delta));
+      oApp.setProperty("/table/" + property, next);
+      this._applyTableSizes();
+    },
+
+    _applyTableSizes: function () {
+      const oTable = this.byId("sheetTable");
+      if (!oTable) return;
+      const oApp = this.getOwnerComponent().getModel("app");
+      oTable.setColumnHeaderHeight(Number(oApp.getProperty("/table/headerHeight")) || 44);
+      oTable.setRowHeight(Number(oApp.getProperty("/table/rowHeight")) || 28);
     },
 
     _persistIfDirty: function () {

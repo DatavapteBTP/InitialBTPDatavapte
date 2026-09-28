@@ -30,6 +30,10 @@ sap.ui.define([
           fields: [],
           rows: [],
           dirty: false
+        },
+        table: {
+          headerHeight: 44,
+          rowHeight: 28
         }
       }), "app");
 
