@@ -145,9 +145,30 @@ describe('MigrationService upload', () => {
     assert.equal(data.sheetCount, 4);
   });
 
+  it('serves stored blank templates for the dropdown', async () => {
+    const { url } = await test;
+    const catalogRes = await fetch(url + '/sample/blank-templates.json');
+    const catalog = await catalogRes.json();
+    assert.equal(catalogRes.status, 200, JSON.stringify(catalog));
+    const product = catalog.find((item) => item.id === 'custom-f4-009');
+    assert.ok(product);
+    assert.equal(product.fileName, 'CUSTOM_F4_009 1.xml');
+    const xmlRes = await fetch(url + '/sample/' + encodeURIComponent(product.fileName));
+    const xml = await xmlRes.text();
+    assert.equal(xmlRes.status, 200, xml.slice(0, 200));
+    assert.match(xml, /ss:Name="Basic Data"/);
+    assert.match(xml, /Excel\.Sheet/);
+  });
+
   it('uploads a large Product Migration Cockpit XML without 500', async () => {
     const custom = path.join(
-      '/home/ubuntu/.cursor/projects/workspace/uploads/CUSTOM_F4_009_1_75b7.xml'
+      __dirname,
+      '..',
+      'app',
+      'migration-studio',
+      'webapp',
+      'sample',
+      'CUSTOM_F4_009 1.xml'
     );
     if (!fs.existsSync(custom)) return;
     const { url } = await test;

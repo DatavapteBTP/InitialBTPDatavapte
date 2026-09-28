@@ -11,6 +11,7 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
    - data type / length
    - description, mandatory `*`, and key `(k)`
 3. The UI5 app opens the file as a workbook:
+   - Choose **Upload from computer** or a stored **blank template** from the dropdown (`CUSTOM_F4_009 1.xml` Product, plus the Bank sample)
    - IconTabBar for every Excel tab
    - Introduction as an editable text page
    - Field List and data sheets as editable tables (add / delete / save rows)
@@ -27,6 +28,7 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
 | `srv/lib/spreadsheetml.js` | Excel XML Spreadsheet 2003 reader |
 | `srv/lib/spreadsheetml-writer.js` | Rebuild SpreadsheetML `.xml` after edits |
 | `app/migration-studio/webapp` | SAP UI5 freestyle app |
+| `app/migration-studio/webapp/sample` | Stored blank templates (`CUSTOM_F4_009 1.xml`, Bank) |
 | `test/` | Parser and service tests |
 | `mta.yaml` | Cloud Foundry / BTP deploy descriptor |
 
@@ -41,8 +43,8 @@ npm start
 
 Open [http://localhost:4004](http://localhost:4004).
 
-- **Upload and open as UI5** — choose a cockpit `.xlsx` or `.xml` file
-- **Open sample Bank template** — loads `Source data for Bank` (Introduction, Field List, Bank Master, Bank Address)
+- **Upload from computer** — choose a cockpit `.xlsx` or `.xml` file from this device
+- **Blank templates** — pick a stored template from the dropdown (Product `CUSTOM_F4_009 1.xml`, or Bank) and open it
 
 The OData service is at `/odata/v4/migration/`.
 
@@ -88,7 +90,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.7.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.8.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -98,7 +100,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.7.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.7.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.8.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.

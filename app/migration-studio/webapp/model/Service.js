@@ -31,11 +31,12 @@ sap.ui.define([], function () {
       }
       return "/" + rel;
     },
-    sampleUrl: function () {
-      if (isLaunchpad() || isStandaloneApprouter()) {
-        return appBase() + "sample/Source_data_for_Bank.xml";
-      }
-      return "/sample/Source_data_for_Bank.xml";
+    catalogUrl: function () {
+      return this.url("sample/blank-templates.json");
+    },
+    sampleUrl: function (fileName) {
+      const name = encodeURIComponent(fileName || "Source_data_for_Bank.xml");
+      return this.url("sample/" + name);
     },
     downloadTemplate: function (templateId) {
       return fetch(this.url("odata/v4/migration/downloadTemplateXml"), {

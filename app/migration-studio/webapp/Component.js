@@ -16,6 +16,9 @@ sap.ui.define([
         busy: false,
         busyReason: "",
         templates: [],
+        blankTemplates: [],
+        selectedBlankId: "",
+        selectedBlank: null,
         current: null,
         editor: {
           sheetId: "",

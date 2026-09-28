@@ -36,3 +36,14 @@
 .dmsEditableTable .sapMInputBaseInner {
   min-width: 6rem;
 }
+
+.dmsStartOption {
+  min-width: 22rem;
+  max-width: 34rem;
+  flex: 1 1 22rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-sizing: border-box;
+}

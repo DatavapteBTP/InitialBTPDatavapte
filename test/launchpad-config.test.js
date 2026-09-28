@@ -77,4 +77,24 @@ describe('Launchpad / destination wiring', () => {
     assert.equal(manifest['sap.app'].dataSources.mainService.uri, 'odata/v4/migration/');
     assert.equal(manifest['sap.cloud'].service, 'AppRouterDatavapte');
   });
+
+  it('offers stored blank templates next to local file upload', () => {
+    const home = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/view/Home.view.xml'),
+      'utf8'
+    );
+    assert.match(home, /id="fileUploader"/);
+    assert.match(home, /id="blankTemplateSelect"/);
+    const catalog = JSON.parse(
+      fs.readFileSync(
+        path.join(ROOT, 'app/migration-studio/webapp/sample/blank-templates.json'),
+        'utf8'
+      )
+    );
+    assert.equal(catalog[0].fileName, 'CUSTOM_F4_009 1.xml');
+    assert.equal(
+      fs.existsSync(path.join(ROOT, 'app/migration-studio/webapp/sample', catalog[0].fileName)),
+      true
+    );
+  });
 });

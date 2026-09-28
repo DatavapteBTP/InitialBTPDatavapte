@@ -12,6 +12,7 @@ sap.ui.define([
       this.getOwnerComponent().getRouter()
         .getRoute("home")
         .attachPatternMatched(this.onRouteMatched, this);
+      this._loadBlankTemplates();
     },
 
     onRouteMatched: function () {
@@ -50,21 +51,58 @@ sap.ui.define([
       this._uploadFile(this._selectedFile);
     },
 
-    onLoadSample: function () {
-      this._setBusy(true, "Loading sample Bank Master template…");
-      fetch(Service.sampleUrl())
+    onBlankChange: function (oEvent) {
+      const item = oEvent.getParameter("selectedItem");
+      this._selectBlank(item && item.getKey());
+    },
+
+    onLoadBlank: function () {
+      const blank = this.getOwnerComponent().getModel("app").getProperty("/selectedBlank");
+      if (!blank || !blank.fileName) {
+        MessageBox.warning(this.getOwnerComponent().getModel("i18n").getProperty("selectBlankFirst"));
+        return;
+      }
+      this._setBusy(true, "Loading " + blank.title + "…");
+      fetch(Service.sampleUrl(blank.fileName))
         .then((res) => {
-          if (!res.ok) throw new Error("Sample template is not available.");
+          if (!res.ok) throw new Error("The selected blank template is not available.");
           return res.arrayBuffer();
         })
         .then((buffer) => {
-          const file = new File([buffer], "Source_data_for_Bank.xml", { type: "application/xml" });
+          const file = new File([buffer], blank.fileName, { type: blank.mediaType || guessType(blank.fileName) });
           return this._uploadFile(file);
         })
         .catch((err) => {
           this._setBusy(false);
           MessageBox.error(err.message);
         });
+    },
+
+    _loadBlankTemplates: function () {
+      const that = this;
+      fetch(Service.catalogUrl())
+        .then(function (res) {
+          if (!res.ok) throw new Error("Could not load blank templates.");
+          return res.json();
+        })
+        .then(function (list) {
+          const templates = Array.isArray(list) ? list : [];
+          that.getOwnerComponent().getModel("app").setProperty("/blankTemplates", templates);
+          that._selectBlank(templates[0] && templates[0].id);
+        })
+        .catch(function (err) {
+          MessageBox.error(err.message);
+        });
+    },
+
+    _selectBlank: function (id) {
+      const oApp = this.getOwnerComponent().getModel("app");
+      const list = oApp.getProperty("/blankTemplates") || [];
+      const item = list.find(function (template) {
+        return template.id === id;
+      }) || list[0] || null;
+      oApp.setProperty("/selectedBlankId", item ? item.id : "");
+      oApp.setProperty("/selectedBlank", item);
     },
 
     onOpenTemplate: function (oEvent) {

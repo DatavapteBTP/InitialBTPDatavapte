@@ -1,0 +1,16 @@
+[
+  {
+    "id": "custom-f4-009",
+    "fileName": "CUSTOM_F4_009 1.xml",
+    "title": "Product (CUSTOM_F4_009)",
+    "description": "Blank SAP S/4HANA Migration Cockpit Product template",
+    "mediaType": "application/xml"
+  },
+  {
+    "id": "bank",
+    "fileName": "Source_data_for_Bank.xml",
+    "title": "Bank",
+    "description": "Sample Bank Master template with example rows",
+    "mediaType": "application/xml"
+  }
+]
