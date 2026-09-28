@@ -81,6 +81,48 @@ describe('MigrationService upload', () => {
     assert.match(after.rows[0].values, /Edited Bank/);
   });
 
+  it('downloads updated data as SpreadsheetML XML', async () => {
+    const { url } = await test;
+    const content = fs.readFileSync(FIXTURE_XML).toString('base64');
+    const uploaded = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'Source_data_for_Bank.xml',
+        mediaType: 'application/xml',
+        content
+      })
+    }).then((res) => res.json());
+
+    const read = await fetch(
+      `${url}/odata/v4/migration/Templates(${uploaded.ID})?$expand=sheets($expand=rows)`
+    ).then((res) => res.json());
+    const master = read.sheets.find((s) => s.name === 'Bank Master');
+    await fetch(url + '/odata/v4/migration/saveSheetData', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sheetId: master.ID,
+        introText: '',
+        rows: JSON.stringify([
+          { rowIndex: 9, values: ['FR', '30004', 'Edited Bank', '', '', 'Paris', '', ''] }
+        ])
+      })
+    });
+
+    const download = await fetch(url + '/odata/v4/migration/downloadTemplateXml', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ templateId: uploaded.ID })
+    });
+    const body = await download.json();
+    assert.equal(download.status, 200, body.error?.message || JSON.stringify(body));
+    assert.equal(body.fileName, 'Source_data_for_Bank.xml');
+    assert.match(body.content, /Edited Bank/);
+    assert.match(body.content, /S_BNKA/);
+    assert.match(body.content, /<Worksheet ss:Name="Bank Master">[\s\S]*Edited Bank[\s\S]*<\/Worksheet>/);
+  });
+
   it('accepts uploads larger than the default 100kb JSON body limit', async () => {
     const { url } = await test;
     const xml = fs.readFileSync(FIXTURE_XML, 'utf8');

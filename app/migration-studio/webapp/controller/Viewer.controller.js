@@ -89,6 +89,18 @@ sap.ui.define([
       });
     },
 
+    onDownloadXml: function () {
+      const that = this;
+      const templateId = this.getOwnerComponent().getModel("app").getProperty("/current/ID");
+      this._persistIfDirty().then(function () {
+        return Service.downloadTemplate(templateId);
+      }).then(function (fileName) {
+        MessageToast.show(that._i18n("downloadedXml").replace("{0}", fileName));
+      }).catch(function (err) {
+        MessageBox.error(err.message);
+      });
+    },
+
     _loadTemplate: function (templateId) {
       const oApp = this.getOwnerComponent().getModel("app");
       oApp.setProperty("/busy", true);

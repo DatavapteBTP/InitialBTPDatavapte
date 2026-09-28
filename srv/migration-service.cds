@@ -24,4 +24,10 @@ service MigrationService {
     introText : LargeString,
     rows      : LargeString
   ) returns Integer;
+
+  action downloadTemplateXml(templateId : UUID) returns {
+    fileName  : String;
+    mediaType : String;
+    content   : LargeString;
+  };
 }

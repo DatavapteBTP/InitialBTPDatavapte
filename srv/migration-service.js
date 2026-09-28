@@ -2,10 +2,11 @@
 
 const cds = require('@sap/cds');
 const { parseMigrationExcel, gridFromSheet } = require('./lib/excel-parser');
+const { exportTemplateXml, xmlFileName } = require('./lib/spreadsheetml-writer');
 
 module.exports = class MigrationService extends cds.ApplicationService {
   async init() {
-    const { Templates, Sheets, DataRows } = this.entities;
+    const { Templates, Sheets, Fields, DataRows } = this.entities;
 
     this.on('uploadTemplate', async (req) => {
       const fileName = String(req.data.fileName || 'template.xlsx').trim();
@@ -104,6 +105,35 @@ module.exports = class MigrationService extends cds.ApplicationService {
       await UPDATE(Templates, sheet.template_ID).with({ rowCount });
 
       return entries.length;
+    });
+
+    this.on('downloadTemplateXml', async (req) => {
+      const templateId = req.data.templateId;
+      if (!templateId) req.reject(400, 'templateId is required.');
+
+      const dbEntities = cds.entities('datavapte.migration');
+      const template = await SELECT.one.from(dbEntities.Templates).where({ ID: templateId });
+      if (!template) req.reject(404, 'Template not found.');
+
+      const sheets = await SELECT.from(dbEntities.Sheets)
+        .where({ template_ID: templateId })
+        .orderBy('sequence');
+      for (const sheet of sheets) {
+        sheet.fields = await SELECT.from(dbEntities.Fields)
+          .where({ sheet_ID: sheet.ID })
+          .orderBy('columnIndex');
+        sheet.rows = await SELECT.from(dbEntities.DataRows)
+          .where({ sheet_ID: sheet.ID })
+          .orderBy('rowIndex');
+      }
+
+      const xml = exportTemplateXml(template, sheets);
+
+      return {
+        fileName: xmlFileName(template.fileName),
+        mediaType: 'application/xml',
+        content: xml
+      };
     });
 
     this.on('sheetGrid', async (req) => {

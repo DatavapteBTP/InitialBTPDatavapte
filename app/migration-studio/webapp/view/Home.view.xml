@@ -63,7 +63,7 @@
             <Column demandPopin="true" minScreenWidth="Tablet"><Text text="{i18n>colFields}" /></Column>
             <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colRows}" /></Column>
             <Column demandPopin="true" minScreenWidth="Desktop"><Text text="{i18n>colStatus}" /></Column>
-            <Column hAlign="End" width="8rem"><Text text="" /></Column>
+            <Column hAlign="End" width="14rem"><Text text="" /></Column>
           </columns>
           <items>
             <ColumnListItem type="Navigation" press=".onOpenTemplate">
@@ -74,7 +74,10 @@
                 <ObjectNumber number="{app>fieldCount}" unit="fields" />
                 <ObjectNumber number="{app>rowCount}" unit="rows" />
                 <ObjectStatus text="{app>status}" state="Success" />
-                <Button text="{i18n>open}" type="Transparent" press=".onOpenTemplate" />
+                <HBox justifyContent="End" wrap="Wrap">
+                  <Button text="{i18n>open}" type="Transparent" press=".onOpenTemplate" class="sapUiTinyMarginEnd" />
+                  <Button text="{i18n>downloadXml}" icon="sap-icon://download" type="Transparent" press=".onDownloadXml" />
+                </HBox>
               </cells>
             </ColumnListItem>
           </items>

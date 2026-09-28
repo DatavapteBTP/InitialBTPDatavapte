@@ -36,6 +36,36 @@ sap.ui.define([], function () {
         return appBase() + "sample/Source_data_for_Bank.xml";
       }
       return "/sample/Source_data_for_Bank.xml";
+    },
+    downloadTemplate: function (templateId) {
+      return fetch(this.url("odata/v4/migration/downloadTemplateXml"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId: templateId })
+      }).then(function (res) {
+        return res.json().then(function (body) {
+          return { ok: res.ok, body: body };
+        });
+      }).then(function (result) {
+        if (!result.ok) {
+          throw new Error((result.body.error && result.body.error.message) || "Could not download the XML template.");
+        }
+        const fileName = result.body.fileName || "template.xml";
+        const blob = new Blob([result.body.content || ""], {
+          type: result.body.mediaType || "application/xml"
+        });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () {
+          URL.revokeObjectURL(href);
+        }, 1000);
+        return fileName;
+      });
     }
   };
 });

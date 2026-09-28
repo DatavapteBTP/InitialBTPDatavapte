@@ -14,6 +14,7 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
    - IconTabBar for every Excel tab
    - Introduction as an editable text page
    - Field List and data sheets as editable tables (add / delete / save rows)
+   - **Download XML** writes the updated workbook back to SpreadsheetML `.xml` (Migration Cockpit format)
    - mandatory sheets marked on the tab
 
 ## Project layout
@@ -21,9 +22,10 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
 | Path | Role |
 | --- | --- |
 | `db/schema.cds` | Templates, sheets, fields, data rows |
-| `srv/migration-service.cds` | OData V4 service + `uploadTemplate` action |
+| `srv/migration-service.cds` | OData V4 service + upload / save / `downloadTemplateXml` |
 | `srv/lib/excel-parser.js` | Migration Cockpit + generic Excel parser |
 | `srv/lib/spreadsheetml.js` | Excel XML Spreadsheet 2003 reader |
+| `srv/lib/spreadsheetml-writer.js` | Rebuild SpreadsheetML `.xml` after edits |
 | `app/migration-studio/webapp` | SAP UI5 freestyle app |
 | `test/` | Parser and service tests |
 | `mta.yaml` | Cloud Foundry / BTP deploy descriptor |
@@ -86,7 +88,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.6.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.7.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -96,7 +98,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.6.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.6.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.7.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.

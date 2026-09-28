@@ -18,6 +18,11 @@
             class="sapUiTinyMarginEnd"
             text="{app>/current/sheetCount} tabs · {app>/current/fieldCount} fields · {app>/current/rowCount} rows"
             state="Information" />
+          <Button
+            text="{i18n>downloadXml}"
+            icon="sap-icon://download"
+            type="Emphasized"
+            press=".onDownloadXml" />
         </contentRight>
       </Bar>
     </customHeader>

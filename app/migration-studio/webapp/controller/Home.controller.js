@@ -75,6 +75,26 @@ sap.ui.define([
       this.getOwnerComponent().getRouter().navTo("viewer", { templateId: id });
     },
 
+    onDownloadXml: function (oEvent) {
+      if (oEvent.stopPropagation) oEvent.stopPropagation();
+      const oCtx = oEvent.getSource().getBindingContext("app") ||
+        oEvent.getSource().getParent().getBindingContext("app");
+      if (!oCtx) return;
+      const that = this;
+      this._setBusy(true, "Preparing XML download…");
+      Service.downloadTemplate(oCtx.getProperty("ID"))
+        .then(function (fileName) {
+          that._setBusy(false);
+          MessageToast.show(
+            that.getOwnerComponent().getModel("i18n").getProperty("downloadedXml").replace("{0}", fileName)
+          );
+        })
+        .catch(function (err) {
+          that._setBusy(false);
+          MessageBox.error(err.message);
+        });
+    },
+
     _uploadFile: function (file) {
       const that = this;
       this._setBusy(true, "Reading Excel tabs…");
