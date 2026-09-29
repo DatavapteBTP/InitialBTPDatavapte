@@ -79,14 +79,45 @@ function workbookFromSheetJS(buffer) {
   const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true, raw: false });
   const sheets = {};
   for (const name of wb.SheetNames) {
-    sheets[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], {
+    const sheet = wb.Sheets[name];
+    compactSheetRef(sheet);
+    // Keep blank metadata rows so Migration Cockpit row 4–8 indexes stay aligned.
+    // compactSheetRef already stops SheetJS from materializing phantom used ranges.
+    sheets[name] = XLSX.utils.sheet_to_json(sheet, {
       header: 1,
       defval: '',
-      raw: false,
-      blankrows: true
+      raw: false
     });
   }
   return { sheetNames: wb.SheetNames, sheets };
+}
+
+const MAX_SHEET_ROWS = 20000;
+const MAX_SHEET_COLS = 400;
+
+/**
+ * Excel often stores a phantom used range (e.g. A1:ALW100011). SheetJS then
+ * materializes hundreds of thousands of empty cells and the upload times out,
+ * which the UI reports as a JSON parse error.
+ */
+function compactSheetRef(sheet) {
+  if (!sheet || typeof sheet !== 'object') return sheet;
+  let maxR = 0;
+  let maxC = 0;
+  let found = false;
+  for (const key of Object.keys(sheet)) {
+    if (key.charAt(0) === '!') continue;
+    const cell = XLSX.utils.decode_cell(key);
+    if (cell.r > MAX_SHEET_ROWS || cell.c > MAX_SHEET_COLS) continue;
+    found = true;
+    if (cell.r > maxR) maxR = cell.r;
+    if (cell.c > maxC) maxC = cell.c;
+  }
+  sheet['!ref'] = XLSX.utils.encode_range({
+    s: { r: 0, c: 0 },
+    e: { r: found ? maxR : 0, c: found ? maxC : 0 }
+  });
+  return sheet;
 }
 
 function buildSheet(raw, sequence, fieldCatalog) {
@@ -259,7 +290,7 @@ function parseGenericDataSheet(raw, rows) {
 }
 
 function parseFieldListSheet(rows) {
-  const headerIndex = rows.findIndex((row) => normalizeRow(row).some((c) => String(c).trim()));
+  const headerIndex = findFieldListHeaderIndex(rows);
   if (headerIndex < 0) {
     return { fields: [], rows: [], columnCount: 0, dataRowCount: 0, introText: '' };
   }
@@ -303,22 +334,31 @@ function parseFieldListSheet(rows) {
   };
 }
 
+function findFieldListHeaderIndex(rows) {
+  return (rows || []).findIndex((row) => {
+    const joined = normalizeRow(row)
+      .map((cell) => String(cell || '').toLowerCase())
+      .join(' | ');
+    return joined.includes('sheet') && (joined.includes('field description') || joined.includes('description'));
+  });
+}
+
 function indexFieldList(rows) {
   const catalog = new Map();
-  const headerIndex = rows.findIndex((row) => normalizeRow(row).some((c) => String(c).trim()));
+  const headerIndex = findFieldListHeaderIndex(rows);
   if (headerIndex < 0) return catalog;
 
   const headers = normalizeRow(rows[headerIndex]).map((h) => String(h || '').trim().toLowerCase());
-  const col = (aliases) => headers.findIndex((h) => aliases.some((a) => h.includes(a)));
+  const col = (aliases) => headers.findIndex((h) => aliases.some((a) => h === a || h.includes(a)));
 
-  const sheetCol = col(['sheet']);
-  const groupCol = col(['group']);
-  const descCol = col(['description', 'field name', 'label']);
-  const techCol = col(['technical', 'sap field', 'field']);
-  const typeCol = col(['type', 'data type']);
+  const sheetCol = col(['sheet name', 'sheet']);
+  const groupCol = col(['group name', 'group']);
+  const descCol = col(['field description', 'description', 'field name', 'label']);
+  const techCol = col(['technical name', 'technical', 'sap field']);
+  const typeCol = col(['data type', 'type']);
   const lengthCol = col(['length']);
   const decCol = col(['decimal']);
-  const mandCol = col(['mandatory', 'required']);
+  const mandCol = col(['importance', 'mandatory', 'required']);
   const keyCol = col(['key']);
 
   for (let r = headerIndex + 1; r < rows.length; r++) {
@@ -363,7 +403,9 @@ function detectDataFormat(rows) {
   const typeRow = normalizeRow(rows[5]);
   const descriptionRow = normalizeRow(rows[7]);
   const techHits = technicalRow.filter((c) => /^[A-Z][A-Z0-9_/]{1,30}$/.test(String(c).trim())).length;
-  const typeHits = typeRow.filter((c) => /char|numc|dec|date|clnt|cuky|curr|tims|lang|text|number|integer/i.test(String(c))).length;
+  const typeHits = typeRow.filter((c) =>
+    /char|numc|dec|date|clnt|cuky|curr|tims|lang|text|number|integer|ete\s*;/i.test(String(c))
+  ).length;
   const descHits = descriptionRow.filter((c) => String(c).trim()).length;
   if ((techHits >= 2 && descHits >= 2) || (typeHits >= 2 && descHits >= 2)) return 'migration';
   return 'generic';
@@ -372,6 +414,14 @@ function detectDataFormat(rows) {
 function parseTypeLength(value) {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   if (!text) return { dataType: '', length: '', decimals: '' };
+  const coded = text.match(/^([A-Za-z]+)\s*;\s*(\d+)\s*;\s*(\d+)/);
+  if (coded) {
+    return {
+      dataType: coded[1].toUpperCase(),
+      length: coded[2],
+      decimals: coded[3] === '0' ? '' : coded[3]
+    };
+  }
   const match = text.match(/^([A-Za-z]+)\s*(\d+)?(?:\s*[.,/]\s*(\d+))?/);
   if (match) {
     return {
@@ -470,7 +520,8 @@ function slugField(description, columnIndex) {
 
 function isTruthyFlag(value) {
   const text = String(value || '').trim();
-  return /^(y|yes|true|1|x|\*|k|mandatory|key)$/i.test(text);
+  if (/mandatory|required|\*/i.test(text)) return true;
+  return /^(y|yes|true|1|x|k|key)$/i.test(text);
 }
 
 function inferObjectName(fileName, sheets) {
@@ -525,5 +576,6 @@ module.exports = {
   parseTypeLength,
   gridFromSheet,
   readWorkbook,
+  compactSheetRef,
   fitField
 };

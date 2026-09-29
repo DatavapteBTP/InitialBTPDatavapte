@@ -22,6 +22,7 @@ describe('type / length parsing', () => {
   it('reads CHAR, NUMC and decimal definitions', () => {
     assert.deepEqual(parseTypeLength('CHAR 3'), { dataType: 'CHAR', length: '3', decimals: '' });
     assert.deepEqual(parseTypeLength('DEC 9,5'), { dataType: 'DEC', length: '9', decimals: '5' });
+    assert.deepEqual(parseTypeLength('ETE;80;0;C;80;0'), { dataType: 'ETE', length: '80', decimals: '' });
     assert.equal(parseTypeLength('LANG 1').dataType, 'LANG');
   });
 });
@@ -109,5 +110,49 @@ describe('migration template parser', () => {
     });
     assert.ok(fitted.description.startsWith('Valuation Type\n\n'));
     assert.equal(fitted.description.length, 2000);
+  });
+
+  it('ignores phantom million-row Excel used ranges', () => {
+    const XLSX = require('xlsx');
+    const { compactSheetRef } = require('../srv/lib/excel-parser');
+    const wb = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([
+      ['Source Data for Migration Object: Bank'],
+      [''],
+      [''],
+      ['S_BNKA', '', ''],
+      ['BANKS', 'BANKL', 'BANKA'],
+      ['CHAR 3', 'CHAR 15', 'CHAR 60'],
+      ['Bank Data', 'Bank Data', 'Bank Data'],
+      ['Bank Country Key *', 'Bank Key *', 'Bank Name *'],
+      ['DE', '20060001', 'City Bank']
+    ]);
+    sheet['!ref'] = 'A1:ALW100011';
+    compactSheetRef(sheet);
+    assert.match(sheet['!ref'], /^A1:/);
+    const end = XLSX.utils.decode_range(sheet['!ref']).e;
+    assert.ok(end.r < 50, sheet['!ref']);
+    assert.ok(end.c < 20, sheet['!ref']);
+    XLSX.utils.book_append_sheet(wb, sheet, 'Bank Master');
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const parsed = parseMigrationExcel(buffer, 'banks.xlsx');
+    const master = parsed.sheets[0];
+    assert.equal(master.fields[0].technicalName, 'BANKS');
+    assert.equal(master.dataRowCount, 1);
+  });
+
+  it('parses a Product Migration Cockpit xlsx workbook', () => {
+    const product = path.join(__dirname, 'fixtures', 'MM_Product.xlsx');
+    const parsed = parseMigrationExcel(fs.readFileSync(product), 'MM - Product 08032026191310.xlsx');
+    assert.ok(parsed.sheetCount >= 29);
+    const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
+    assert.ok(basic);
+    assert.equal(basic.sheetType, 'Data');
+    assert.ok(basic.fields.length >= 8);
+    const productField = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    assert.ok(productField);
+    assert.match(productField.description, /Product Number/i);
+    const fieldList = parsed.sheets.find((sheet) => sheet.sheetType === 'FieldList');
+    assert.ok(fieldList.dataRowCount >= 20);
   });
 });

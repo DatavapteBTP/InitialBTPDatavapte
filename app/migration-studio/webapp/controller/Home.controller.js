@@ -181,7 +181,22 @@ sap.ui.define([
             content: base64
           })
         }))
-        .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
+        .then((res) => res.text().then((text) => {
+          const trimmed = String(text || '').trim();
+          if (!trimmed) {
+            if (!res.ok) throw new Error('Upload failed (HTTP ' + res.status + ').');
+            return { ok: res.ok, body: {} };
+          }
+          try {
+            return { ok: res.ok, body: JSON.parse(trimmed) };
+          } catch {
+            throw new Error(
+              res.ok
+                ? 'The Excel file could not be processed. Try a smaller workbook or .xml template.'
+                : ('Upload failed (HTTP ' + res.status + '). The server did not return JSON.')
+            );
+          }
+        }))
         .then(({ ok, body }) => {
           that._setBusy(false);
           if (!ok) {

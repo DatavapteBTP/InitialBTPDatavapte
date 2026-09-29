@@ -45,7 +45,7 @@ npm start
 
 Open [http://localhost:4004](http://localhost:4004).
 
-- **Upload from computer** — choose a cockpit `.xlsx` or `.xml` file from this device
+- **Upload from computer** — choose a cockpit `.xlsx` or `.xml` file from this device. Inflated Excel used ranges (million empty rows) are compacted so the upload does not time out.
 - **Blank templates** — pick a stored template from the dropdown (Product `CUSTOM_F4_009 1.xml`, or Bank) and open it
 
 The OData service is at `/odata/v4/migration/`.
@@ -92,7 +92,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.10.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.11.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -102,7 +102,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.10.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.10.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.11.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.

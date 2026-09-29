@@ -197,6 +197,29 @@ describe('MigrationService upload', () => {
     assert.match(html, /ui5\.sap\.com/);
   });
 
+  it('uploads a Product Migration Cockpit xlsx without JSON parse errors', { timeout: 60000 }, async () => {
+    const product = path.join(__dirname, 'fixtures', 'MM_Product.xlsx');
+    const { url } = await test;
+    const content = fs.readFileSync(product).toString('base64');
+    const started = Date.now();
+    const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'MM - Product 08032026191310.xlsx',
+        mediaType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        content
+      })
+    });
+    const raw = await response.text();
+    assert.doesNotThrow(() => JSON.parse(raw), raw.slice(0, 200));
+    const data = JSON.parse(raw);
+    assert.equal(response.status, 200, data.error?.message || raw.slice(0, 300));
+    assert.ok(data.ID);
+    assert.ok(data.sheetCount >= 29);
+    assert.ok(Date.now() - started < 20000, 'xlsx upload took too long: ' + (Date.now() - started) + 'ms');
+  });
+
   it('rejects unsupported file types', async () => {
     const { url } = await test;
     const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
