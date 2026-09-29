@@ -229,4 +229,33 @@ describe('migration template parser', () => {
     assert.equal(parsed.valueHelps['T134-MTART'][0].key, 'HAWA');
     assert.equal(parsed.valueHelps['T134-MTART'][0].text, 'Trading Goods');
   });
+
+  it('applies bundled Product value lists to cockpit XML with empty row 3 and no PV tab', () => {
+    const xmlPath = path.join(
+      __dirname,
+      '..',
+      'app',
+      'migration-studio',
+      'webapp',
+      'sample',
+      'CUSTOM_F4_009 1.xml'
+    );
+    const parsed = parseMigrationExcel(fs.readFileSync(xmlPath), 'CUSTOM_F4_009 1.xml');
+    const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    assert.equal(product.valueHelpKey, 'MARA-MATNR');
+    assert.equal(attyp.valueHelpKey || '', '');
+    assert.ok(parsed.valueHelps['T134-MTART'].some((item) => item.key === 'HAWA'));
+    assert.ok(!parsed.sheets.some((sheet) => sheet.sheetType === 'ValueHelp'));
+  });
+
+  it('does not attach Product value lists to unrelated XML templates', () => {
+    const parsed = parseMigrationExcel(fs.readFileSync(FIXTURE_XML), 'Source_data_for_Bank.xml');
+    assert.equal(Object.keys(parsed.valueHelps || {}).length, 0);
+    const master = parsed.sheets.find((sheet) => sheet.name === 'Bank Master');
+    assert.equal(master.fields[0].valueHelpKey || '', '');
+  });
 });

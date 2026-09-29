@@ -186,6 +186,17 @@ describe('MigrationService upload', () => {
     assert.equal(response.status, 200, data.error?.message || JSON.stringify(data));
     assert.equal(data.sheetCount, 29);
     assert.ok(data.fieldCount >= 600);
+    const read = await fetch(
+      `${url}/odata/v4/migration/Templates(${data.ID})?$expand=sheets($expand=fields)`
+    );
+    const template = await read.json();
+    const helps = JSON.parse(template.valueHelps || '{}');
+    assert.ok(helps['T134-MTART'] && helps['T134-MTART'].some((item) => item.key === 'HAWA'));
+    const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    assert.equal(attyp.valueHelpKey || '', '');
   });
 
   it('serves the UI5 app from the CAP host', async () => {

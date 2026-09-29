@@ -27,9 +27,19 @@ function parseMigrationExcel(buffer, fileName = 'template.xlsx') {
 
   const fieldListSheet = rawSheets.find((s) => FIELD_LIST_RE.test(s.name));
   const fieldCatalog = fieldListSheet ? indexFieldList(fieldListSheet.rows) : new Map();
-  const valueHelps = indexPossibleValues(rawSheets);
+  let valueHelps = indexPossibleValues(rawSheets);
+  let fieldKeys = {};
+  // Cockpit XML omits the hidden PV sheet and leaves row 3 empty. Reuse the
+  // Product xlsx catalog and match by sheet + technical field name.
+  if (!Object.keys(valueHelps).length && looksLikeProductWorkbook(fileName, rawSheets)) {
+    const bundled = loadBundledProductValueHelps();
+    valueHelps = bundled.valueHelps || {};
+    fieldKeys = bundled.fieldKeys || {};
+  }
 
-  const sheets = rawSheets.map((raw, sequence) => buildSheet(raw, sequence, fieldCatalog));
+  const sheets = rawSheets.map((raw, sequence) =>
+    buildSheet(raw, sequence, fieldCatalog, fieldKeys, valueHelps)
+  );
   const objectName = inferObjectName(fileName, sheets);
   const fieldCount = sheets.reduce((n, s) => n + s.fields.length, 0);
   const rowCount = sheets.reduce((n, s) => n + s.rows.length, 0);
@@ -127,7 +137,7 @@ function compactSheetRef(sheet) {
   return sheet;
 }
 
-function buildSheet(raw, sequence, fieldCatalog) {
+function buildSheet(raw, sequence, fieldCatalog, fieldKeys, valueHelps) {
   const sheetType = detectSheetType(raw.name);
   const base = {
     name: raw.name,
@@ -156,7 +166,7 @@ function buildSheet(raw, sequence, fieldCatalog) {
     return Object.assign(base, parsePossibleValuesSheet(raw.rows));
   }
 
-  return Object.assign(base, parseDataSheet(raw, fieldCatalog));
+  return Object.assign(base, parseDataSheet(raw, fieldCatalog, fieldKeys, valueHelps));
 }
 
 function detectSheetType(name) {
@@ -166,12 +176,12 @@ function detectSheetType(name) {
   return 'Data';
 }
 
-function parseDataSheet(raw, fieldCatalog) {
+function parseDataSheet(raw, fieldCatalog, fieldKeys, valueHelps) {
   const rows = raw.rows || [];
   const format = detectDataFormat(rows);
 
   if (format === 'migration') {
-    return parseMigrationDataSheet(raw, rows, fieldCatalog);
+    return parseMigrationDataSheet(raw, rows, fieldCatalog, fieldKeys, valueHelps);
   }
   return parseGenericDataSheet(raw, rows);
 }
@@ -184,7 +194,7 @@ function parseDataSheet(raw, fieldCatalog) {
  *   row 8 (index 7) field descriptions (* = mandatory)
  *   row 9+          business data
  */
-function parseMigrationDataSheet(raw, rows, fieldCatalog) {
+function parseMigrationDataSheet(raw, rows, fieldCatalog, fieldKeys, valueHelps) {
   const checkTableRow = normalizeRow(rows[2]);
   const structureRow = normalizeRow(rows[3]);
   const technicalRow = normalizeRow(rows[4]);
@@ -230,7 +240,13 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
       isKey,
       groupName: groupName || catalog?.groupName || '',
       sapFieldName: catalog?.sapFieldName || stripMarks(technicalName),
-      valueHelpKey: String(checkTableRow[columnIndex] || '').trim()
+      valueHelpKey: resolveValueHelpKey(
+        checkTableRow[columnIndex],
+        raw.name,
+        stripMarks(technicalName) || catalog?.technicalName || '',
+        fieldKeys,
+        valueHelps
+      )
     }));
   }
 
@@ -441,6 +457,48 @@ function lookupValueHelp(catalog, tableField) {
     if (key.toUpperCase() === needle && options && options.length) return options;
   }
   return [];
+}
+
+let bundledProductValueHelps = null;
+
+function loadBundledProductValueHelps() {
+  if (bundledProductValueHelps) return bundledProductValueHelps;
+  try {
+    bundledProductValueHelps = require('./product-value-helps.json');
+  } catch {
+    bundledProductValueHelps = { valueHelps: {}, fieldKeys: {} };
+  }
+  return bundledProductValueHelps;
+}
+
+function looksLikeProductWorkbook(fileName, rawSheets) {
+  if (/product/i.test(String(fileName || ''))) return true;
+  const sheets = rawSheets || [];
+  if (!sheets.some((sheet) => sheet.name === 'Basic Data')) return false;
+  return sheets.some((sheet) => {
+    const tech = normalizeRow(sheet.rows && sheet.rows[4]);
+    return tech.some((cell) => /^(PRODUCT|MTART)$/i.test(String(cell || '').trim()));
+  });
+}
+
+function resolveValueHelpKey(row3, sheetName, technicalName, fieldKeys, valueHelps) {
+  const fromRow = String(row3 || '').trim();
+  if (fromRow) return fromRow;
+  const tech = stripMarks(technicalName);
+  if (!tech) return '';
+  const mapped = fieldKeys && (fieldKeys[`${sheetName}::${tech}`] || fieldKeys[`${sheetName}::${tech.toUpperCase()}`]);
+  if (mapped && valueHelps && valueHelps[mapped] && valueHelps[mapped].length) return mapped;
+  const needle = tech.toUpperCase();
+  const matches = Object.keys(valueHelps || {}).filter((key) => {
+    const upper = key.toUpperCase();
+    return upper === needle || upper.endsWith(`-${needle}`);
+  });
+  if (matches.length === 1) return matches[0];
+  if (matches.length > 1) {
+    matches.sort((a, b) => (valueHelps[b] || []).length - (valueHelps[a] || []).length);
+    return matches[0];
+  }
+  return '';
 }
 
 function findFieldListHeaderIndex(rows) {
@@ -686,6 +744,7 @@ module.exports = {
   parseTypeLength,
   parseValueHelpEntry,
   lookupValueHelp,
+  resolveValueHelpKey,
   indexPossibleValues,
   gridFromSheet,
   readWorkbook,

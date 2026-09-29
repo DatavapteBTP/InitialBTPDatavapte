@@ -15,7 +15,7 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
    - IconTabBar for every Excel tab
    - Introduction as an editable text page
    - Field List and data sheets as editable tables (add / delete / save rows)
-   - Columns whose Excel row 3 has a `TABLE-FIELD` name get a dropdown from the **PV** tab (`key=>description`); empty row 3 stays a free-text cell. Hidden PV sheets and hidden row 3 in SpreadsheetML `.xml` are still read (the PV tab stays off the IconTabBar). The SAP cockpit XML download often omits the PV sheet — save the `.xlsx` as XML, or upload `.xlsx`, if you need those lists.
+   - Columns whose Excel row 3 has a `TABLE-FIELD` name get a dropdown from the **PV** tab (`key=>description`); empty row 3 stays a free-text cell. Hidden PV sheets and hidden row 3 in SpreadsheetML `.xml` are still read. Cockpit `.xml` downloads omit that PV sheet — Product XML still gets the same lists by matching technical field names (MTART, WERKS, …) to the bundled Product catalog.
    - Compact column headers; **Header** / **Rows** +/- in the toolbar change header and data row height
    - **Delete** on the uploaded-templates list removes a file after confirmation
    - **Download XML** writes the updated workbook back to SpreadsheetML `.xml` (Migration Cockpit format)
@@ -93,7 +93,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.13.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.14.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -103,7 +103,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.13.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.13.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.14.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.
