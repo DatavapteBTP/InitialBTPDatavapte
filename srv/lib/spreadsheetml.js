@@ -36,6 +36,8 @@ function parseSpreadsheetML(buffer) {
     const name = worksheet['@_Name'] || worksheet['@_ss:Name'] || 'Sheet';
     sheetNames.push(name);
     const table = asArray(worksheet.Table)[0] || {};
+    // Hidden sheets (ss:Visible / WorksheetOptions Visible=SheetHidden) stay in
+    // the workbook: Migration Cockpit XML hides PV tabs but still stores the lists.
     sheets[name] = tableToMatrix(asArray(table.Row));
   }
 
@@ -49,6 +51,7 @@ function tableToMatrix(rows) {
   for (const row of rows) {
     const rowIndex = Number(row['@_Index'] || row['@_ss:Index'] || nextRowIndex);
     while (matrix.length < rowIndex - 1) matrix.push([]);
+    // ss:Hidden="1" rows (row 3 check-table names, rows 4–6 metadata) are still data.
     matrix[rowIndex - 1] = cellsToArray(asArray(row.Cell));
     nextRowIndex = rowIndex + 1;
   }

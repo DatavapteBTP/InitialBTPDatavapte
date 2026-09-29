@@ -138,6 +138,7 @@ sap.ui.define([
           oApp.setProperty("/busy", false);
           this._renderSheetTabs(template.sheets || []);
           const firstData = (template.sheets || []).find((s) => s.sheetType === "Data")
+            || (template.sheets || []).find((s) => s.sheetType !== "ValueHelp")
             || (template.sheets || [])[0];
           if (firstData) {
             this.byId("sheetTabBar").setSelectedKey(firstData.ID);
@@ -154,6 +155,7 @@ sap.ui.define([
       const oBar = this.byId("sheetTabBar");
       oBar.destroyItems();
       sheets.forEach((sheet) => {
+        if (sheet.sheetType === "ValueHelp") return;
         const count = sheet.dataRowCount || (sheet.rows && sheet.rows.length) || 0;
         oBar.addItem(new IconTabFilter({
           key: sheet.ID,

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Basic Data">
+  <Table>
+   <Row>
+    <Cell><Data ss:Type="String">Source Data for Migration Object: Product</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Version</Data></Cell>
+   </Row>
+   <Row ss:Hidden="1">
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">T134-MTART</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row ss:Hidden="1">
+    <Cell><Data ss:Type="String">S_MARA</Data></Cell>
+    <Cell><Data ss:Type="String">S_MARA</Data></Cell>
+    <Cell><Data ss:Type="String">S_MARA</Data></Cell>
+   </Row>
+   <Row ss:Hidden="1">
+    <Cell><Data ss:Type="String">PRODUCT</Data></Cell>
+    <Cell><Data ss:Type="String">MTART</Data></Cell>
+    <Cell><Data ss:Type="String">ATTYP</Data></Cell>
+   </Row>
+   <Row ss:Hidden="1">
+    <Cell><Data ss:Type="String">CHAR 80</Data></Cell>
+    <Cell><Data ss:Type="String">CHAR 4</Data></Cell>
+    <Cell><Data ss:Type="String">CHAR 2</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Key</Data></Cell>
+    <Cell><Data ss:Type="String">Header Data</Data></Cell>
+    <Cell><Data ss:Type="String">Header Data</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Product Number *</Data></Cell>
+    <Cell><Data ss:Type="String">Product Type *</Data></Cell>
+    <Cell><Data ss:Type="String">Product Category</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">1000</Data></Cell>
+    <Cell><Data ss:Type="String">HAWA</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="PV MM - Product">
+  <Table>
+   <Row>
+    <Cell><Data ss:Type="String">T134</Data></Cell>
+    <Cell><Data ss:Type="String">T023</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">MTART</Data></Cell>
+    <Cell><Data ss:Type="String">MATKL</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">HAWA=>Trading Goods</Data></Cell>
+    <Cell><Data ss:Type="String">01=>Group 1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">FERT=>Finished Product</Data></Cell>
+    <Cell><Data ss:Type="String">02=>Group 2</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <Visible>SheetHidden</Visible>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

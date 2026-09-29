@@ -210,4 +210,23 @@ describe('migration template parser', () => {
     assert.equal(parsed.valueHelps['T134-MTART'][0].text, 'Trading Goods');
     assert.equal(parsed.sheets.find((sheet) => sheet.sheetType === 'ValueHelp').name, 'PV MM - Product');
   });
+
+  it('reads hidden XML PV sheets and hidden row 3 for dropdowns', () => {
+    const xmlPath = path.join(__dirname, 'fixtures', 'Product_hidden_pv.xml');
+    const workbook = parseSpreadsheetML(fs.readFileSync(xmlPath));
+    assert.ok(workbook.sheetNames.includes('PV MM - Product'));
+    assert.equal(workbook.sheets['Basic Data'][2][1], 'T134-MTART');
+    assert.equal(workbook.sheets['PV MM - Product'][0][0], 'T134');
+    assert.equal(workbook.sheets['PV MM - Product'][1][0], 'MTART');
+    assert.match(workbook.sheets['PV MM - Product'][2][0], /HAWA=>/);
+
+    const parsed = parseMigrationExcel(fs.readFileSync(xmlPath), 'Product_hidden_pv.xml');
+    const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    assert.equal(attyp.valueHelpKey || '', '');
+    assert.equal(parsed.valueHelps['T134-MTART'][0].key, 'HAWA');
+    assert.equal(parsed.valueHelps['T134-MTART'][0].text, 'Trading Goods');
+  });
 });

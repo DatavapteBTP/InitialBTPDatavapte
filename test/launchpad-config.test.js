@@ -155,5 +155,6 @@ describe('Launchpad / destination wiring', () => {
     assert.match(controller, /sap\/m\/ComboBox/);
     assert.match(controller, /showSecondaryValues: true/);
     assert.match(controller, /lookupValueHelp/);
+    assert.match(controller, /sheetType === "ValueHelp"/);
   });
 });

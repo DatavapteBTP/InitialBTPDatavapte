@@ -232,6 +232,35 @@ describe('MigrationService upload', () => {
     assert.equal(attyp.valueHelpKey || '', '');
   });
 
+  it('uploads XML with a hidden PV sheet and still binds row-3 dropdowns', async () => {
+    const xmlPath = path.join(__dirname, 'fixtures', 'Product_hidden_pv.xml');
+    const { url } = await test;
+    const content = fs.readFileSync(xmlPath).toString('base64');
+    const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: 'Product_hidden_pv.xml',
+        mediaType: 'application/xml',
+        content
+      })
+    });
+    const data = await response.json();
+    assert.equal(response.status, 200, data.error?.message || JSON.stringify(data));
+    const read = await fetch(
+      `${url}/odata/v4/migration/Templates(${data.ID})?$expand=sheets($expand=fields)`
+    );
+    const template = await read.json();
+    const helps = JSON.parse(template.valueHelps || '{}');
+    assert.equal(helps['T134-MTART'][0].key, 'HAWA');
+    const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const pv = template.sheets.find((sheet) => sheet.name === 'PV MM - Product');
+    assert.ok(pv);
+    assert.equal(pv.sheetType, 'ValueHelp');
+  });
+
   it('rejects unsupported file types', async () => {
     const { url } = await test;
     const response = await fetch(url + '/odata/v4/migration/uploadTemplate', {
