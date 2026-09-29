@@ -48,6 +48,7 @@ module.exports = class MigrationService extends cds.ApplicationService {
           fieldCount: parsed.fieldCount,
           rowCount: parsed.rowCount,
           parseMessage: parsed.parseMessage,
+          valueHelps: JSON.stringify(parsed.valueHelps || {}),
           content: buffer,
           sheets: parsed.sheets
         });

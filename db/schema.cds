@@ -12,6 +12,7 @@ entity Templates : cuid, managed {
   fieldCount    : Integer default 0;
   rowCount      : Integer default 0;
   parseMessage  : String(2000);
+  valueHelps    : LargeString;
   @Core.MediaType: mediaType
   @Core.ContentDisposition.Filename: fileName
   content       : LargeBinary;
@@ -45,6 +46,7 @@ entity Fields : cuid {
   isKey          : Boolean default false;
   groupName      : String(255);
   sapFieldName   : String(128);
+  valueHelpKey   : String(128);
 }
 
 entity DataRows : cuid {

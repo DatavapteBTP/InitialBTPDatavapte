@@ -139,4 +139,21 @@ describe('Launchpad / destination wiring', () => {
     assert.match(controller, /MessageBox\.Action\.DELETE/);
     assert.match(service, /method: "DELETE"/);
   });
+
+  it('shows PV tab values as dropdowns when Excel row 3 has a table-field', () => {
+    const schema = fs.readFileSync(path.join(ROOT, 'db/schema.cds'), 'utf8');
+    const parser = fs.readFileSync(path.join(ROOT, 'srv/lib/excel-parser.js'), 'utf8');
+    const controller = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/controller/Viewer.controller.js'),
+      'utf8'
+    );
+    assert.match(schema, /valueHelps\s+:\s+LargeString/);
+    assert.match(schema, /valueHelpKey\s+:\s+String\(128\)/);
+    assert.match(parser, /VALUE_HELP_RE/);
+    assert.match(parser, /indexPossibleValues/);
+    assert.match(parser, /checkTableRow/);
+    assert.match(controller, /sap\/m\/ComboBox/);
+    assert.match(controller, /showSecondaryValues: true/);
+    assert.match(controller, /lookupValueHelp/);
+  });
 });

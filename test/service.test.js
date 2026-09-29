@@ -218,6 +218,18 @@ describe('MigrationService upload', () => {
     assert.ok(data.ID);
     assert.ok(data.sheetCount >= 29);
     assert.ok(Date.now() - started < 20000, 'xlsx upload took too long: ' + (Date.now() - started) + 'ms');
+
+    const read = await fetch(
+      `${url}/odata/v4/migration/Templates(${data.ID})?$expand=sheets($expand=fields)`
+    );
+    const template = await read.json();
+    const helps = JSON.parse(template.valueHelps || '{}');
+    assert.ok(helps['T134-MTART'] && helps['T134-MTART'].length > 0);
+    const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    assert.equal(attyp.valueHelpKey || '', '');
   });
 
   it('rejects unsupported file types', async () => {

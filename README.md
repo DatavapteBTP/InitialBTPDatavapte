@@ -15,6 +15,7 @@ SAP BTP CAP application that uploads an SAP S/4HANA **Data Migration Cockpit** E
    - IconTabBar for every Excel tab
    - Introduction as an editable text page
    - Field List and data sheets as editable tables (add / delete / save rows)
+   - Columns whose Excel row 3 has a `TABLE-FIELD` name get a dropdown from the **PV** tab (`key=>description`); empty row 3 stays a free-text cell
    - Compact column headers; **Header** / **Rows** +/- in the toolbar change header and data row height
    - **Delete** on the uploaded-templates list removes a file after confirmation
    - **Download XML** writes the updated workbook back to SpreadsheetML `.xml` (Migration Cockpit format)
@@ -92,7 +93,7 @@ npx cds build --production
 npm --prefix app/migration-studio run build
 unzip -l app/migration-studio/dist/datavaptemigrationstudio.zip | head
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.11.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.12.mtar
 ```
 
 1. Install the Cloud MTA Build Tool and Cloud Foundry CLI.
@@ -102,7 +103,7 @@ cf deploy mta_archives/datavapte-migration-studio_1.0.11.mtar
 ```bash
 npx cds build --production
 mbt build
-cf deploy mta_archives/datavapte-migration-studio_1.0.11.mtar
+cf deploy mta_archives/datavapte-migration-studio_1.0.12.mtar
 ```
 
 Local development uses in-memory SQLite and dummy auth. Production profile in `package.json` switches to HANA and XSUAA. To persist uploads across local restarts, change `cds.requires.db.credentials.url` to `db.sqlite` and run `npx cds deploy --to sqlite:db.sqlite`.

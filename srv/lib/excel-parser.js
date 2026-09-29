@@ -5,6 +5,7 @@ const { parseSpreadsheetML } = require('./spreadsheetml');
 
 const INTRO_RE = /intro|instruction/i;
 const FIELD_LIST_RE = /field\s*list|^fields$/i;
+const VALUE_HELP_RE = /^pv\b|possible\s*values|value\s*help/i;
 const MANDATORY_MARK_RE = /\*/;
 const KEY_MARK_RE = /\bk\b|\(k\)/i;
 
@@ -26,11 +27,16 @@ function parseMigrationExcel(buffer, fileName = 'template.xlsx') {
 
   const fieldListSheet = rawSheets.find((s) => FIELD_LIST_RE.test(s.name));
   const fieldCatalog = fieldListSheet ? indexFieldList(fieldListSheet.rows) : new Map();
+  const valueHelps = indexPossibleValues(rawSheets);
 
   const sheets = rawSheets.map((raw, sequence) => buildSheet(raw, sequence, fieldCatalog));
   const objectName = inferObjectName(fileName, sheets);
   const fieldCount = sheets.reduce((n, s) => n + s.fields.length, 0);
   const rowCount = sheets.reduce((n, s) => n + s.rows.length, 0);
+  const valueHelpCount = Object.keys(valueHelps).length;
+  const helpNote = valueHelpCount
+    ? `, ${valueHelpCount} value list${valueHelpCount === 1 ? '' : 's'}`
+    : '';
 
   return {
     fileName,
@@ -39,7 +45,8 @@ function parseMigrationExcel(buffer, fileName = 'template.xlsx') {
     sheetCount: sheets.length,
     fieldCount,
     rowCount,
-    parseMessage: `Read ${sheets.length} tab${sheets.length === 1 ? '' : 's'}, ${fieldCount} fields, ${rowCount} data rows.`,
+    valueHelps,
+    parseMessage: `Read ${sheets.length} tab${sheets.length === 1 ? '' : 's'}, ${fieldCount} fields, ${rowCount} data rows${helpNote}.`,
     sheets
   };
 }
@@ -145,12 +152,17 @@ function buildSheet(raw, sequence, fieldCatalog) {
     return Object.assign(base, parseFieldListSheet(raw.rows));
   }
 
+  if (sheetType === 'ValueHelp') {
+    return Object.assign(base, parsePossibleValuesSheet(raw.rows));
+  }
+
   return Object.assign(base, parseDataSheet(raw, fieldCatalog));
 }
 
 function detectSheetType(name) {
   if (INTRO_RE.test(name)) return 'Introduction';
   if (FIELD_LIST_RE.test(name)) return 'FieldList';
+  if (VALUE_HELP_RE.test(name)) return 'ValueHelp';
   return 'Data';
 }
 
@@ -173,6 +185,7 @@ function parseDataSheet(raw, fieldCatalog) {
  *   row 9+          business data
  */
 function parseMigrationDataSheet(raw, rows, fieldCatalog) {
+  const checkTableRow = normalizeRow(rows[2]);
   const structureRow = normalizeRow(rows[3]);
   const technicalRow = normalizeRow(rows[4]);
   const typeRow = normalizeRow(rows[5]);
@@ -182,7 +195,8 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
     descriptionRow.length,
     technicalRow.length,
     typeRow.length,
-    groupRow.length
+    groupRow.length,
+    checkTableRow.length
   );
 
   const structureName =
@@ -215,7 +229,8 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog) {
       mandatory,
       isKey,
       groupName: groupName || catalog?.groupName || '',
-      sapFieldName: catalog?.sapFieldName || stripMarks(technicalName)
+      sapFieldName: catalog?.sapFieldName || stripMarks(technicalName),
+      valueHelpKey: String(checkTableRow[columnIndex] || '').trim()
     }));
   }
 
@@ -332,6 +347,100 @@ function parseFieldListSheet(rows) {
     fields,
     rows: dataRows
   };
+}
+
+function parsePossibleValuesSheet(rows) {
+  const tables = normalizeRow(rows[0]);
+  const names = normalizeRow(rows[1]);
+  const columnCount = Math.max(tables.length, names.length);
+  const fields = [];
+  for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+    const table = String(tables[columnIndex] || '').trim();
+    const fieldName = String(names[columnIndex] || '').trim();
+    if (!table && !fieldName) continue;
+    fields.push(fitField({
+      columnIndex,
+      technicalName: fieldName || `COL_${columnIndex + 1}`,
+      description: [table, fieldName].filter(Boolean).join('-'),
+      dataType: 'Text',
+      length: '',
+      decimals: '',
+      mandatory: false,
+      isKey: false,
+      groupName: 'Possible Values',
+      sapFieldName: fieldName,
+      valueHelpKey: table && fieldName ? `${table}-${fieldName}` : ''
+    }));
+  }
+
+  const dataRows = [];
+  for (let r = 2; r < (rows || []).length; r++) {
+    const values = normalizeRow(rows[r], columnCount);
+    if (values.every((v) => v === '')) continue;
+    dataRows.push({
+      rowIndex: r + 1,
+      values: JSON.stringify(values)
+    });
+  }
+
+  return {
+    title: 'Possible Values',
+    structureName: 'PossibleValues',
+    columnCount: fields.length,
+    dataRowCount: dataRows.length,
+    fields,
+    rows: dataRows
+  };
+}
+
+function indexPossibleValues(rawSheets) {
+  const catalog = {};
+  const pv = (rawSheets || []).find((sheet) => VALUE_HELP_RE.test(sheet.name));
+  if (!pv) return catalog;
+  const rows = pv.rows || [];
+  const tables = normalizeRow(rows[0]);
+  const names = normalizeRow(rows[1]);
+  const columnCount = Math.max(tables.length, names.length);
+  for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+    const table = String(tables[columnIndex] || '').trim();
+    const fieldName = String(names[columnIndex] || '').trim();
+    if (!table || !fieldName) continue;
+    const options = [];
+    const seen = new Set();
+    for (let r = 2; r < rows.length; r++) {
+      const raw = String(normalizeRow(rows[r])[columnIndex] || '').trim();
+      if (!raw || /^no data found$/i.test(raw)) continue;
+      const entry = parseValueHelpEntry(raw);
+      if (!entry.key || seen.has(entry.key)) continue;
+      seen.add(entry.key);
+      options.push(entry);
+    }
+    if (options.length) catalog[`${table}-${fieldName}`] = options;
+  }
+  return catalog;
+}
+
+function parseValueHelpEntry(value) {
+  const text = String(value || '').trim();
+  const idx = text.indexOf('=>');
+  if (idx >= 0) {
+    return {
+      key: text.slice(0, idx).trim(),
+      text: text.slice(idx + 2).trim()
+    };
+  }
+  return { key: text, text: text };
+}
+
+function lookupValueHelp(catalog, tableField) {
+  if (!catalog || !tableField) return [];
+  const direct = catalog[tableField];
+  if (direct && direct.length) return direct;
+  const needle = String(tableField).toUpperCase();
+  for (const [key, options] of Object.entries(catalog)) {
+    if (key.toUpperCase() === needle && options && options.length) return options;
+  }
+  return [];
 }
 
 function findFieldListHeaderIndex(rows) {
@@ -478,7 +587,8 @@ const FIELD_LIMITS = {
   length: 20,
   decimals: 10,
   groupName: 255,
-  sapFieldName: 128
+  sapFieldName: 128,
+  valueHelpKey: 128
 };
 
 function decodeXmlText(value) {
@@ -574,6 +684,9 @@ module.exports = {
   detectSheetType,
   detectDataFormat,
   parseTypeLength,
+  parseValueHelpEntry,
+  lookupValueHelp,
+  indexPossibleValues,
   gridFromSheet,
   readWorkbook,
   compactSheetRef,

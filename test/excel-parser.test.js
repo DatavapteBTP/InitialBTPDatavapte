@@ -14,6 +14,7 @@ describe('sheet type detection', () => {
   it('classifies introduction, field list, and data tabs', () => {
     assert.equal(detectSheetType('Introduction'), 'Introduction');
     assert.equal(detectSheetType('Field List'), 'FieldList');
+    assert.equal(detectSheetType('PV MM - Product'), 'ValueHelp');
     assert.equal(detectSheetType('Bank Master'), 'Data');
   });
 });
@@ -154,5 +155,59 @@ describe('migration template parser', () => {
     assert.match(productField.description, /Product Number/i);
     const fieldList = parsed.sheets.find((sheet) => sheet.sheetType === 'FieldList');
     assert.ok(fieldList.dataRowCount >= 20);
+    const pv = parsed.sheets.find((sheet) => sheet.sheetType === 'ValueHelp');
+    assert.ok(pv);
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    assert.equal(attyp.valueHelpKey || '', '');
+    const types = parsed.valueHelps['T134-MTART'];
+    assert.ok(Array.isArray(types) && types.length > 0);
+    assert.ok(types.some((item) => item.key === 'HAWA'));
+  });
+
+  it('turns PV tab lists into dropdowns for row-3 table-field names', () => {
+    const XLSX = require('xlsx');
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet([
+        ['Source Data for Migration Object: Product'],
+        ['Version'],
+        ['', 'T134-MTART', ''],
+        ['S_MARA', 'S_MARA', 'S_MARA'],
+        ['PRODUCT', 'MTART', 'ATTYP'],
+        ['CHAR 80', 'CHAR 4', 'CHAR 2'],
+        ['Key', 'Header Data', 'Header Data'],
+        ['Product Number *', 'Product Type *', 'Product Category'],
+        ['1000', 'HAWA', '']
+      ]),
+      'Basic Data'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet([
+        ['T134', 'T023'],
+        ['MTART', 'MATKL'],
+        ['HAWA=>Trading Goods', '01=>Group 1'],
+        ['FERT=>Finished Product', '02=>Group 2']
+      ]),
+      'PV MM - Product'
+    );
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const parsed = parseMigrationExcel(buffer, 'product.xlsx');
+    const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
+    const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
+    const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    assert.equal(product.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    assert.equal(attyp.valueHelpKey || '', '');
+    assert.deepEqual(
+      parsed.valueHelps['T134-MTART'].map((item) => item.key),
+      ['HAWA', 'FERT']
+    );
+    assert.equal(parsed.valueHelps['T134-MTART'][0].text, 'Trading Goods');
+    assert.equal(parsed.sheets.find((sheet) => sheet.sheetType === 'ValueHelp').name, 'PV MM - Product');
   });
 });

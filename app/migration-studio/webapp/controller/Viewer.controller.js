@@ -2,12 +2,14 @@ sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/m/IconTabFilter",
   "sap/m/Input",
+  "sap/m/ComboBox",
   "sap/m/Label",
   "sap/m/MessageBox",
   "sap/m/MessageToast",
+  "sap/ui/core/ListItem",
   "sap/ui/table/Column",
   "datavapte/migration/studio/model/Service"
-], function (Controller, IconTabFilter, Input, Label, MessageBox, MessageToast, Column, Service) {
+], function (Controller, IconTabFilter, Input, ComboBox, Label, MessageBox, MessageToast, ListItem, Column, Service) {
   "use strict";
 
   return Controller.extend("datavapte.migration.studio.controller.Viewer", {
@@ -132,6 +134,7 @@ sap.ui.define([
             template.sheets.sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
           }
           oApp.setProperty("/current", template);
+          oApp.setProperty("/valueHelps", parseValueHelps(template.valueHelps));
           oApp.setProperty("/busy", false);
           this._renderSheetTabs(template.sheets || []);
           const firstData = (template.sheets || []).find((s) => s.sheetType === "Data")
@@ -171,7 +174,8 @@ sap.ui.define([
       if (!sheet) return;
       this._activeSheetId = sheetId;
       const isIntro = sheet.sheetType === "Introduction";
-      const fields = (sheet.fields || []).slice().sort((a, b) => a.columnIndex - b.columnIndex);
+      const catalog = oApp.getProperty("/valueHelps");
+      const baseFields = (sheet.fields || []).slice().sort((a, b) => a.columnIndex - b.columnIndex);
       const rows = (sheet.rows || []).slice().sort((a, b) => a.rowIndex - b.rowIndex).map((row) => {
         let values = [];
         try {
@@ -180,10 +184,25 @@ sap.ui.define([
           values = [];
         }
         const entry = { ID: row.ID, rowIndex: row.rowIndex };
-        fields.forEach((field) => {
+        baseFields.forEach((field) => {
           entry["col_" + field.columnIndex] = values[field.columnIndex] == null ? "" : String(values[field.columnIndex]);
         });
         return entry;
+      });
+      const fields = baseFields.map(function (field) {
+        const options = lookupValueHelp(catalog, field.valueHelpKey).slice();
+        if (options.length) {
+          const seen = {};
+          options.forEach(function (item) { seen[item.key] = true; });
+          rows.forEach(function (row) {
+            const current = row["col_" + field.columnIndex];
+            if (current && !seen[current]) {
+              options.unshift({ key: current, text: current });
+              seen[current] = true;
+            }
+          });
+        }
+        return Object.assign({}, field, { valueHelp: options });
       });
 
       oApp.setProperty("/editor", {
@@ -204,13 +223,13 @@ sap.ui.define([
       const oTable = this.byId("sheetTable");
       if (!oTable) return;
       oTable.destroyColumns();
-      fields.forEach((field) => {
+      fields.forEach((field, fieldIndex) => {
         const type = [field.dataType, field.length, field.decimals ? "dec " + field.decimals : ""]
           .filter(Boolean)
           .join(" ");
         const description = (field.description || "") + (field.mandatory ? " *" : "") + (field.isKey ? " (k)" : "");
         const meta = [field.technicalName, type].filter(Boolean).join(" · ");
-        const tooltip = [field.groupName, description, field.technicalName, type]
+        const tooltip = [field.groupName, description, field.technicalName, type, field.valueHelpKey]
           .filter(Boolean)
           .join("\n");
         const labels = [
@@ -228,15 +247,35 @@ sap.ui.define([
             tooltip: tooltip
           }));
         }
+        const options = field.valueHelp || [];
+        const template = options.length
+          ? new ComboBox({
+              selectedKey: "{app>col_" + field.columnIndex + "}",
+              width: "100%",
+              showSecondaryValues: true,
+              filterSecondaryValues: true,
+              change: this.onCellChange.bind(this),
+              selectionChange: this.onCellChange.bind(this),
+              items: {
+                path: "app>/editor/fields/" + fieldIndex + "/valueHelp",
+                templateShareable: false,
+                template: new ListItem({
+                  key: "{app>key}",
+                  text: "{app>key}",
+                  additionalText: "{app>text}"
+                })
+              }
+            })
+          : new Input({
+              value: "{app>col_" + field.columnIndex + "}",
+              change: this.onCellChange.bind(this),
+              valueState: field.mandatory ? "Information" : "None"
+            });
         oTable.addColumn(new Column({
           label: labels[0],
           multiLabels: labels,
-          width: "10rem",
-          template: new Input({
-            value: "{app>col_" + field.columnIndex + "}",
-            change: this.onCellChange.bind(this),
-            valueState: field.mandatory ? "Information" : "None"
-          })
+          width: options.length ? "14rem" : "10rem",
+          template: template
         }));
       });
       this._applyTableSizes();
@@ -341,12 +380,39 @@ sap.ui.define([
   function iconFor(sheet) {
     if (sheet.sheetType === "Introduction") return "sap-icon://message-information";
     if (sheet.sheetType === "FieldList") return "sap-icon://list";
+    if (sheet.sheetType === "ValueHelp") return "sap-icon://value-help";
     return sheet.isMandatory ? "sap-icon://excel-attachment" : "sap-icon://table-view";
   }
 
   function colorFor(sheetType) {
     if (sheetType === "Introduction") return "Neutral";
     if (sheetType === "FieldList") return "Default";
+    if (sheetType === "ValueHelp") return "Neutral";
     return "Positive";
+  }
+
+  function parseValueHelps(raw) {
+    if (!raw) return {};
+    if (typeof raw === "object") return raw;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function lookupValueHelp(catalog, tableField) {
+    if (!catalog || !tableField) return [];
+    const direct = catalog[tableField];
+    if (direct && direct.length) return direct;
+    const needle = String(tableField).toUpperCase();
+    const keys = Object.keys(catalog);
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i].toUpperCase() === needle && catalog[keys[i]] && catalog[keys[i]].length) {
+        return catalog[keys[i]];
+      }
+    }
+    return [];
   }
 });

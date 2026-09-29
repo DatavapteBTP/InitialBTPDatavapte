@@ -20,6 +20,7 @@ sap.ui.define([
         selectedBlankId: "",
         selectedBlank: null,
         current: null,
+        valueHelps: {},
         editor: {
           sheetId: "",
           title: "",
