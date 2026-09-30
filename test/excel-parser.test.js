@@ -241,9 +241,9 @@ describe('migration template parser', () => {
       'migration-studio',
       'webapp',
       'sample',
-      'CUSTOM_F4_009 1.xml'
+      'Product.xml'
     );
-    const parsed = parseMigrationExcel(fs.readFileSync(xmlPath), 'CUSTOM_F4_009 1.xml');
+    const parsed = parseMigrationExcel(fs.readFileSync(xmlPath), 'Product.xml');
     const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');

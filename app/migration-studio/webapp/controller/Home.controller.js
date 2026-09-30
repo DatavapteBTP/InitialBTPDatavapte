@@ -58,8 +58,12 @@ sap.ui.define([
 
     onLoadBlank: function () {
       const blank = this.getOwnerComponent().getModel("app").getProperty("/selectedBlank");
-      if (!blank || !blank.fileName) {
+      if (!blank) {
         MessageBox.warning(this.getOwnerComponent().getModel("i18n").getProperty("selectBlankFirst"));
+        return;
+      }
+      if (blank.dummy || !blank.fileName) {
+        MessageToast.show(this.getOwnerComponent().getModel("i18n").getProperty("dummyTemplate"));
         return;
       }
       this._setBusy(true, "Loading " + blank.title + "…");

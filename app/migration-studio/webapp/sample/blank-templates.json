@@ -1,10 +1,34 @@
 [
   {
-    "id": "custom-f4-009",
-    "fileName": "CUSTOM_F4_009 1.xml",
-    "title": "Product (CUSTOM_F4_009)",
-    "description": "Blank SAP S/4HANA Migration Cockpit Product template",
+    "id": "product",
+    "fileName": "Product.xml",
+    "title": "Product",
+    "description": "SAP S/4HANA Migration Cockpit Product template",
     "mediaType": "application/xml"
+  },
+  {
+    "id": "warehouse",
+    "title": "Warehouse",
+    "description": "Dummy SAP master data template (placeholder)",
+    "dummy": true
+  },
+  {
+    "id": "gl-account",
+    "title": "GL Account",
+    "description": "Dummy SAP master data template (placeholder)",
+    "dummy": true
+  },
+  {
+    "id": "cost-center",
+    "title": "Cost Center",
+    "description": "Dummy SAP master data template (placeholder)",
+    "dummy": true
+  },
+  {
+    "id": "customer",
+    "title": "Customer",
+    "description": "Dummy SAP master data template (placeholder)",
+    "dummy": true
   },
   {
     "id": "bank",

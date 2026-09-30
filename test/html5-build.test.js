@@ -41,7 +41,7 @@ describe('HTML5 App Repo package', () => {
     assert.ok(names.includes('xs-app.json'), 'xs-app.json must be at zip root: ' + names.slice(0, 8).join(', '));
     assert.ok(names.includes('index.html'));
     assert.ok(names.includes('sample/blank-templates.json'));
-    assert.ok(names.includes('sample/CUSTOM_F4_009 1.xml'));
+    assert.ok(names.includes('sample/Product.xml'));
     assert.equal(names.some((name) => name.startsWith('dist/')), false);
   });
 

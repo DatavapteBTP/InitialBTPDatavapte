@@ -91,11 +91,21 @@ describe('Launchpad / destination wiring', () => {
         'utf8'
       )
     );
-    assert.equal(catalog[0].fileName, 'CUSTOM_F4_009 1.xml');
+    assert.equal(catalog[0].fileName, 'Product.xml');
+    assert.equal(catalog[0].title, 'Product');
+    assert.ok(catalog.some((item) => item.title === 'Warehouse' && item.dummy));
+    assert.ok(catalog.some((item) => item.title === 'GL Account' && item.dummy));
     assert.equal(
       fs.existsSync(path.join(ROOT, 'app/migration-studio/webapp/sample', catalog[0].fileName)),
       true
     );
+    const i18n = fs.readFileSync(path.join(ROOT, 'app/migration-studio/webapp/i18n/i18n.properties'), 'utf8');
+    assert.match(i18n, /uploadAndOpen=Upload$/m);
+    const homeCtrl = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/controller/Home.controller.js'),
+      'utf8'
+    );
+    assert.match(homeCtrl, /blank\.dummy/);
   });
 
   it('uses a compact table header and lets users change row height', () => {

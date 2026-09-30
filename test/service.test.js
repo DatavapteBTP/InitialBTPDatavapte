@@ -150,9 +150,12 @@ describe('MigrationService upload', () => {
     const catalogRes = await fetch(url + '/sample/blank-templates.json');
     const catalog = await catalogRes.json();
     assert.equal(catalogRes.status, 200, JSON.stringify(catalog));
-    const product = catalog.find((item) => item.id === 'custom-f4-009');
+    const product = catalog.find((item) => item.id === 'product');
     assert.ok(product);
-    assert.equal(product.fileName, 'CUSTOM_F4_009 1.xml');
+    assert.equal(product.fileName, 'Product.xml');
+    assert.equal(product.title, 'Product');
+    assert.ok(catalog.some((item) => item.title === 'Warehouse' && item.dummy));
+    assert.ok(catalog.some((item) => item.title === 'GL Account' && item.dummy));
     const xmlRes = await fetch(url + '/sample/' + encodeURIComponent(product.fileName));
     const xml = await xmlRes.text();
     assert.equal(xmlRes.status, 200, xml.slice(0, 200));
@@ -168,7 +171,7 @@ describe('MigrationService upload', () => {
       'migration-studio',
       'webapp',
       'sample',
-      'CUSTOM_F4_009 1.xml'
+      'Product.xml'
     );
     if (!fs.existsSync(custom)) return;
     const { url } = await test;
@@ -177,7 +180,7 @@ describe('MigrationService upload', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        fileName: 'CUSTOM_F4_009 1.xml',
+        fileName: 'Product.xml',
         mediaType: 'application/xml',
         content
       })
