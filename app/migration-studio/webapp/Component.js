@@ -12,7 +12,7 @@ sap.ui.define([
     init: function () {
       UIComponent.prototype.init.apply(this, arguments);
 
-      this.setModel(new JSONModel({
+      const appModel = new JSONModel({
         busy: false,
         busyReason: "",
         templates: [],
@@ -36,7 +36,9 @@ sap.ui.define([
           headerHeight: 44,
           rowHeight: 28
         }
-      }), "app");
+      });
+      appModel.setSizeLimit(20000);
+      this.setModel(appModel, "app");
 
       this.getRouter().initialize();
     }

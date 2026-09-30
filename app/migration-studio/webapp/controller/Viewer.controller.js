@@ -142,8 +142,10 @@ sap.ui.define([
           if (template.sheets && template.sheets.length) {
             template.sheets.sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
           }
+          const helps = parseValueHelps(template.valueHelps);
+          this._valueHelps = helps;
+          oApp.setProperty("/valueHelps", helps);
           oApp.setProperty("/current", template);
-          oApp.setProperty("/valueHelps", parseValueHelps(template.valueHelps));
           oApp.setProperty("/busy", false);
           this._renderSheetTabs(template.sheets || []);
           const firstData = (template.sheets || []).find((s) => s.sheetType === "Data")
@@ -185,7 +187,7 @@ sap.ui.define([
       if (!sheet) return;
       this._activeSheetId = sheetId;
       const isIntro = sheet.sheetType === "Introduction";
-      const catalog = oApp.getProperty("/valueHelps");
+      const catalog = resolveValueHelpCatalog(this._valueHelps, oApp.getProperty("/valueHelps"), oApp.getProperty("/current/valueHelps"));
       const baseFields = (sheet.fields || []).slice().sort((a, b) => a.columnIndex - b.columnIndex);
       const rows = (sheet.rows || []).slice().sort((a, b) => a.rowIndex - b.rowIndex).map((row) => {
         let values = [];
@@ -404,6 +406,12 @@ sap.ui.define([
     } catch (e) {
       return {};
     }
+  }
+
+  function resolveValueHelpCatalog(cached, modelHelps, raw) {
+    if (cached && Object.keys(cached).length) return cached;
+    if (modelHelps && Object.keys(modelHelps).length) return modelHelps;
+    return parseValueHelps(raw);
   }
 
   function isFreeTextProductField(sheetName, technicalName) {

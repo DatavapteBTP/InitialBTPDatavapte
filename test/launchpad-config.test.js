@@ -147,6 +147,10 @@ describe('Launchpad / destination wiring', () => {
       path.join(ROOT, 'app/migration-studio/webapp/controller/Viewer.controller.js'),
       'utf8'
     );
+    const component = fs.readFileSync(
+      path.join(ROOT, 'app/migration-studio/webapp/Component.js'),
+      'utf8'
+    );
     assert.match(schema, /valueHelps\s+:\s+LargeString/);
     assert.match(schema, /valueHelpKey\s+:\s+String\(128\)/);
     assert.match(parser, /VALUE_HELP_RE/);
@@ -156,8 +160,10 @@ describe('Launchpad / destination wiring', () => {
     assert.match(controller, /forceSelection: true/);
     assert.match(controller, /showSecondaryValues: true/);
     assert.match(controller, /isFreeTextProductField/);
+    assert.match(controller, /resolveValueHelpCatalog/);
     assert.match(controller, /lookupValueHelp/);
     assert.match(controller, /sheetType === "ValueHelp"/);
     assert.match(parser, /isFreeTextProductField/);
+    assert.match(component, /setSizeLimit\(20000\)/);
   });
 });
