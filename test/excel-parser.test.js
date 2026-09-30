@@ -159,7 +159,7 @@ describe('migration template parser', () => {
     const pv = parsed.sheets.find((sheet) => sheet.sheetType === 'ValueHelp');
     assert.ok(pv);
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     assert.equal(attyp.valueHelpKey || '', '');
     const types = parsed.valueHelps['T134-MTART'];
@@ -202,7 +202,7 @@ describe('migration template parser', () => {
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     assert.equal(product.valueHelpKey || '', '');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     assert.equal(attyp.valueHelpKey || '', '');
     assert.deepEqual(
       parsed.valueHelps['T134-MTART'].map((item) => item.key),
@@ -226,7 +226,7 @@ describe('migration template parser', () => {
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     assert.equal(product.valueHelpKey || '', '');
     assert.equal(attyp.valueHelpKey || '', '');
     assert.equal(parsed.valueHelps['T134-MTART'][0].key, 'HAWA');
@@ -248,7 +248,7 @@ describe('migration template parser', () => {
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     assert.equal(product.valueHelpKey || '', '');
     assert.equal(attyp.valueHelpKey || '', '');
     const extraProduct = parsed.sheets
@@ -265,7 +265,7 @@ describe('migration template parser', () => {
     const fieldKeys = { 'Basic Data::PRODUCT': 'MARA-MATNR', 'Basic Data::MTART': 'T134-MTART', 'Plant Data::PRODUCT': 'MARA-MATNR' };
     assert.equal(resolveValueHelpKey('MARA-MATNR', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
     assert.equal(resolveValueHelpKey('', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
-    assert.equal(resolveValueHelpKey('T134-MTART', 'Basic Data', 'MTART', fieldKeys, helps), '');
+    assert.equal(resolveValueHelpKey('T134-MTART', 'Basic Data', 'MTART', fieldKeys, helps), 'T134-MTART');
     assert.equal(resolveValueHelpKey('T134-MTART', 'Plant Data', 'MTART', fieldKeys, helps), 'T134-MTART');
     assert.equal(resolveValueHelpKey('MARA-MATNR', 'Plant Data', 'PRODUCT', fieldKeys, helps), '');
     assert.equal(resolveValueHelpKey('MARA-MATNR', 'Additional Descriptions', 'PRODUCT', fieldKeys, helps, 'Product Number'), '');

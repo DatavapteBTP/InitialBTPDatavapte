@@ -217,7 +217,7 @@ sap.ui.define([
       const fields = baseFields.map(function (field) {
         const options = isFreeTextProductField(field, sheet.name)
           ? []
-          : lookupValueHelp(catalog, field.valueHelpKey).slice();
+          : fieldValueHelp(catalog, field).slice();
         return Object.assign({}, field, { valueHelp: options, sheetName: sheet.name });
       });
 
@@ -429,10 +429,27 @@ sap.ui.define([
     const tech = String(field && field.technicalName || "").trim();
     const sapName = String(field && field.sapFieldName || "").trim();
     const desc = String(field && field.description || "");
-    const sheet = String(sheetName || (field && field.sheetName) || "");
     if (/^PRODUCT$/i.test(tech) || /^PRODUCT$/i.test(sapName)) return true;
-    if (/^product\s*number\b/i.test(desc)) return true;
-    return /^basic\s*data$/i.test(sheet) && /^MTART$/i.test(tech);
+    return /^product\s*number\b/i.test(desc);
+  }
+
+  function fieldValueHelp(catalog, field) {
+    const fromKey = lookupValueHelp(catalog, field && field.valueHelpKey);
+    if (fromKey.length) return fromKey;
+    const tech = String(field && field.technicalName || "").trim();
+    if (!tech || !catalog) return [];
+    const needle = tech.toUpperCase();
+    const matches = Object.keys(catalog).filter(function (key) {
+      const upper = key.toUpperCase();
+      return upper === needle || upper.endsWith("-" + needle);
+    });
+    if (!matches.length) return [];
+    if (matches.length > 1) {
+      matches.sort(function (a, b) {
+        return (catalog[b] || []).length - (catalog[a] || []).length;
+      });
+    }
+    return catalog[matches[0]] || [];
   }
 
   function lookupValueHelp(catalog, tableField) {

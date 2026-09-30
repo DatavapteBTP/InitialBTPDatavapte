@@ -197,7 +197,7 @@ describe('MigrationService upload', () => {
     assert.ok(helps['T134-MTART'] && helps['T134-MTART'].some((item) => item.key === 'HAWA'));
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.equal(product.valueHelpKey || '', '');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
@@ -243,7 +243,7 @@ describe('MigrationService upload', () => {
     assert.ok(helps['T134-MTART'] && helps['T134-MTART'].length > 0);
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     const productField = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.equal(productField.valueHelpKey || '', '');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
@@ -273,7 +273,7 @@ describe('MigrationService upload', () => {
     assert.equal(helps['T134-MTART'][0].key, 'HAWA');
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
-    assert.equal(mtart.valueHelpKey || '', '');
+    assert.equal(mtart.valueHelpKey, 'T134-MTART');
     const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.equal(product.valueHelpKey || '', '');
     const pv = template.sheets.find((sheet) => sheet.name === 'PV MM - Product');

@@ -485,12 +485,11 @@ function looksLikeProductWorkbook(fileName, rawSheets) {
 function isFreeTextProductField(sheetName, technicalName, description) {
   const tech = String(technicalName || '').trim();
   if (/^PRODUCT$/i.test(tech)) return true;
-  if (/product\s*number/i.test(String(description || ''))) return true;
-  return /^basic\s*data$/i.test(String(sheetName || '')) && /^MTART$/i.test(tech);
+  return /product\s*number/i.test(String(description || ''));
 }
 
 function resolveValueHelpKey(row3, sheetName, technicalName, fieldKeys, valueHelps, description) {
-  // Product Number (any sheet) and Basic Data Product Type are typed by the user.
+  // Product Number is typed by the user; do not bind MARA-MATNR on any sheet.
   if (isFreeTextProductField(sheetName, technicalName, description)) return '';
   const fromRow = String(row3 || '').trim();
   if (fromRow) return fromRow;
