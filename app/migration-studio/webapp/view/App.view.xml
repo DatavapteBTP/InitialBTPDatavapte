@@ -1,0 +1,7 @@
+<mvc:View
+  controllerName="datavapte.migration.studio.controller.App"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  displayBlock="true">
+  <App id="app" busy="{app>/busy}" busyIndicatorDelay="0" />
+</mvc:View>

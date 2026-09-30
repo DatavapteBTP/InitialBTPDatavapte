@@ -1,0 +1,68 @@
+.dmsHeader {
+  background: #003366;
+}
+.dmsHeader .sapMTitle,
+.dmsHeader .sapMText,
+.dmsHeader .sapMObjStatusText {
+  color: #ffffff;
+}
+.dmsHeader .sapMBtnDefault {
+  color: #ffffff;
+}
+
+.dmsWorkbook {
+  height: calc(100vh - 6rem);
+}
+
+.dmsIconTabBar,
+.dmsIconTabBar.sapMITB,
+.dmsEditorPane {
+  height: 100%;
+}
+
+.dmsIconTabBar .sapMITBContainerContent {
+  min-height: 22rem;
+}
+
+.dmsEditableTable {
+  width: 100%;
+}
+
+.dmsEditableTable .sapUiTableCCnt,
+.dmsEditableTable .sapUiTableCtrlScr {
+  background: #ffffff;
+}
+
+.dmsEditableTable .sapMInputBaseInner {
+  min-width: 5rem;
+  min-height: 0;
+  height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.dmsEditableTable .sapUiTableColHdr .sapMLabel {
+  font-size: 0.75rem;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.dmsEditableTable .sapUiTableHeaderCell {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+
+.dmsEditableTable .sapMInputBase {
+  height: 100%;
+}
+
+.dmsStartOption {
+  min-width: 22rem;
+  max-width: 34rem;
+  flex: 1 1 22rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-sizing: border-box;
+}

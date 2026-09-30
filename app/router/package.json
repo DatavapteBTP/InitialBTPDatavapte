@@ -1,0 +1,14 @@
+{
+  "name": "datavapte-migration-approuter",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@sap/approuter": "^16"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js",
+    "build": "node build.js"
+  }
+}
