@@ -46,12 +46,11 @@ sap.ui.define([
 
     onCellChange: function (oEvent) {
       const source = oEvent && oEvent.getSource && oEvent.getSource();
-      if (source && source.getSelectedKey) {
+      if (source && source.isA && source.isA("sap.m.ComboBox")) {
         let key = source.getSelectedKey() || "";
         if (!key) {
-          const typed = String(source.getValue && source.getValue() || "").trim();
-          const items = source.getItems && source.getItems() || [];
-          const match = items.find(function (item) {
+          const typed = String(source.getValue() || "").trim();
+          const match = (source.getItems() || []).find(function (item) {
             return String(item.getKey() || "").toUpperCase() === typed.toUpperCase();
           });
           if (match) {
