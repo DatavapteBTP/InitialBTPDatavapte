@@ -195,6 +195,8 @@ describe('MigrationService upload', () => {
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    assert.equal(product.valueHelpKey || '', '');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     assert.equal(attyp.valueHelpKey || '', '');
   });
@@ -239,6 +241,8 @@ describe('MigrationService upload', () => {
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const productField = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    assert.equal(productField.valueHelpKey || '', '');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     assert.equal(attyp.valueHelpKey || '', '');
   });
@@ -267,6 +271,8 @@ describe('MigrationService upload', () => {
     const basic = template.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
+    assert.equal(product.valueHelpKey || '', '');
     const pv = template.sheets.find((sheet) => sheet.name === 'PV MM - Product');
     assert.ok(pv);
     assert.equal(pv.sheetType, 'ValueHelp');

@@ -4,7 +4,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { parseMigrationExcel, parseTypeLength, detectSheetType } = require('../srv/lib/excel-parser');
+const { parseMigrationExcel, parseTypeLength, detectSheetType, resolveValueHelpKey } = require('../srv/lib/excel-parser');
 const { parseSpreadsheetML } = require('../srv/lib/spreadsheetml');
 
 const FIXTURE_XLSX = path.join(__dirname, 'fixtures', 'Source_data_for_Bank.xlsx');
@@ -153,6 +153,7 @@ describe('migration template parser', () => {
     const productField = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.ok(productField);
     assert.match(productField.description, /Product Number/i);
+    assert.equal(productField.valueHelpKey || '', '');
     const fieldList = parsed.sheets.find((sheet) => sheet.sheetType === 'FieldList');
     assert.ok(fieldList.dataRowCount >= 20);
     const pv = parsed.sheets.find((sheet) => sheet.sheetType === 'ValueHelp');
@@ -224,7 +225,9 @@ describe('migration template parser', () => {
     const basic = parsed.sheets.find((sheet) => sheet.name === 'Basic Data');
     const mtart = basic.fields.find((field) => field.technicalName === 'MTART');
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
+    const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
+    assert.equal(product.valueHelpKey || '', '');
     assert.equal(attyp.valueHelpKey || '', '');
     assert.equal(parsed.valueHelps['T134-MTART'][0].key, 'HAWA');
     assert.equal(parsed.valueHelps['T134-MTART'][0].text, 'Trading Goods');
@@ -246,10 +249,19 @@ describe('migration template parser', () => {
     const attyp = basic.fields.find((field) => field.technicalName === 'ATTYP');
     const product = basic.fields.find((field) => field.technicalName === 'PRODUCT');
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
-    assert.equal(product.valueHelpKey, 'MARA-MATNR');
+    assert.equal(product.valueHelpKey || '', '');
     assert.equal(attyp.valueHelpKey || '', '');
     assert.ok(parsed.valueHelps['T134-MTART'].some((item) => item.key === 'HAWA'));
     assert.ok(!parsed.sheets.some((sheet) => sheet.sheetType === 'ValueHelp'));
+  });
+
+  it('never binds a dropdown to Basic Data PRODUCT even when row 3 is MARA-MATNR', () => {
+    const helps = { 'MARA-MATNR': [{ key: '1000', text: 'Existing material' }], 'T134-MTART': [{ key: 'HAWA', text: 'Trading Goods' }] };
+    const fieldKeys = { 'Basic Data::PRODUCT': 'MARA-MATNR', 'Basic Data::MTART': 'T134-MTART' };
+    assert.equal(resolveValueHelpKey('MARA-MATNR', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
+    assert.equal(resolveValueHelpKey('', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
+    assert.equal(resolveValueHelpKey('T134-MTART', 'Basic Data', 'MTART', fieldKeys, helps), 'T134-MTART');
+    assert.equal(resolveValueHelpKey('MARA-MATNR', 'Plant Data', 'PRODUCT', fieldKeys, helps), 'MARA-MATNR');
   });
 
   it('does not attach Product value lists to unrelated XML templates', () => {

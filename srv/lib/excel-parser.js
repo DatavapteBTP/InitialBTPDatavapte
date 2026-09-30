@@ -481,7 +481,14 @@ function looksLikeProductWorkbook(fileName, rawSheets) {
   });
 }
 
+function isFreeTextProductField(sheetName, technicalName) {
+  return /^basic\s*data$/i.test(String(sheetName || ''))
+    && /^PRODUCT$/i.test(String(technicalName || '').trim());
+}
+
 function resolveValueHelpKey(row3, sheetName, technicalName, fieldKeys, valueHelps) {
+  // Product Number on Basic Data is typed by the user; do not bind MARA-MATNR.
+  if (isFreeTextProductField(sheetName, technicalName)) return '';
   const fromRow = String(row3 || '').trim();
   if (fromRow) return fromRow;
   const tech = stripMarks(technicalName);
@@ -745,6 +752,7 @@ module.exports = {
   parseValueHelpEntry,
   lookupValueHelp,
   resolveValueHelpKey,
+  isFreeTextProductField,
   indexPossibleValues,
   gridFromSheet,
   readWorkbook,

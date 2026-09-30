@@ -153,8 +153,11 @@ describe('Launchpad / destination wiring', () => {
     assert.match(parser, /indexPossibleValues/);
     assert.match(parser, /checkTableRow/);
     assert.match(controller, /sap\/m\/ComboBox/);
+    assert.match(controller, /forceSelection: true/);
     assert.match(controller, /showSecondaryValues: true/);
+    assert.match(controller, /isFreeTextProductField/);
     assert.match(controller, /lookupValueHelp/);
     assert.match(controller, /sheetType === "ValueHelp"/);
+    assert.match(parser, /isFreeTextProductField/);
   });
 });

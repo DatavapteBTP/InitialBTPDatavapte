@@ -44,7 +44,16 @@ sap.ui.define([
       this._setDirty(true);
     },
 
-    onCellChange: function () {
+    onCellChange: function (oEvent) {
+      const source = oEvent && oEvent.getSource && oEvent.getSource();
+      if (source && source.getSelectedKey) {
+        const binding = source.getBindingContext("app");
+        const path = source.getBindingPath("selectedKey");
+        if (binding && path) {
+          const key = source.getSelectedKey() || "";
+          this.getOwnerComponent().getModel("app").setProperty(binding.getPath() + "/" + path, key);
+        }
+      }
       this._setDirty(true);
     },
 
@@ -192,18 +201,9 @@ sap.ui.define([
         return entry;
       });
       const fields = baseFields.map(function (field) {
-        const options = lookupValueHelp(catalog, field.valueHelpKey).slice();
-        if (options.length) {
-          const seen = {};
-          options.forEach(function (item) { seen[item.key] = true; });
-          rows.forEach(function (row) {
-            const current = row["col_" + field.columnIndex];
-            if (current && !seen[current]) {
-              options.unshift({ key: current, text: current });
-              seen[current] = true;
-            }
-          });
-        }
+        const options = isFreeTextProductField(sheet.name, field.technicalName)
+          ? []
+          : lookupValueHelp(catalog, field.valueHelpKey).slice();
         return Object.assign({}, field, { valueHelp: options });
       });
 
@@ -254,6 +254,8 @@ sap.ui.define([
           ? new ComboBox({
               selectedKey: "{app>col_" + field.columnIndex + "}",
               width: "100%",
+              editable: true,
+              forceSelection: true,
               showSecondaryValues: true,
               filterSecondaryValues: true,
               change: this.onCellChange.bind(this),
@@ -402,6 +404,11 @@ sap.ui.define([
     } catch (e) {
       return {};
     }
+  }
+
+  function isFreeTextProductField(sheetName, technicalName) {
+    return /^basic\s*data$/i.test(String(sheetName || ""))
+      && /^PRODUCT$/i.test(String(technicalName || "").trim());
   }
 
   function lookupValueHelp(catalog, tableField) {
