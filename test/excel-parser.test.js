@@ -251,17 +251,23 @@ describe('migration template parser', () => {
     assert.equal(mtart.valueHelpKey, 'T134-MTART');
     assert.equal(product.valueHelpKey || '', '');
     assert.equal(attyp.valueHelpKey || '', '');
+    const extraProduct = parsed.sheets
+      .filter((sheet) => sheet.sheetType === 'Data')
+      .flatMap((sheet) => sheet.fields.filter((field) => field.technicalName === 'PRODUCT'));
+    assert.ok(extraProduct.length > 1);
+    assert.ok(extraProduct.every((field) => !field.valueHelpKey));
     assert.ok(parsed.valueHelps['T134-MTART'].some((item) => item.key === 'HAWA'));
     assert.ok(!parsed.sheets.some((sheet) => sheet.sheetType === 'ValueHelp'));
   });
 
-  it('never binds a dropdown to Basic Data PRODUCT even when row 3 is MARA-MATNR', () => {
+  it('never binds a dropdown to PRODUCT even when row 3 is MARA-MATNR', () => {
     const helps = { 'MARA-MATNR': [{ key: '1000', text: 'Existing material' }], 'T134-MTART': [{ key: 'HAWA', text: 'Trading Goods' }] };
-    const fieldKeys = { 'Basic Data::PRODUCT': 'MARA-MATNR', 'Basic Data::MTART': 'T134-MTART' };
+    const fieldKeys = { 'Basic Data::PRODUCT': 'MARA-MATNR', 'Basic Data::MTART': 'T134-MTART', 'Plant Data::PRODUCT': 'MARA-MATNR' };
     assert.equal(resolveValueHelpKey('MARA-MATNR', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
     assert.equal(resolveValueHelpKey('', 'Basic Data', 'PRODUCT', fieldKeys, helps), '');
     assert.equal(resolveValueHelpKey('T134-MTART', 'Basic Data', 'MTART', fieldKeys, helps), 'T134-MTART');
-    assert.equal(resolveValueHelpKey('MARA-MATNR', 'Plant Data', 'PRODUCT', fieldKeys, helps), 'MARA-MATNR');
+    assert.equal(resolveValueHelpKey('MARA-MATNR', 'Plant Data', 'PRODUCT', fieldKeys, helps), '');
+    assert.equal(resolveValueHelpKey('MARA-MATNR', 'Additional Descriptions', 'PRODUCT', fieldKeys, helps, 'Product Number'), '');
   });
 
   it('does not attach Product value lists to unrelated XML templates', () => {

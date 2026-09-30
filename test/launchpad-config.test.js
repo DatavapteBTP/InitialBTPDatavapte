@@ -161,6 +161,7 @@ describe('Launchpad / destination wiring', () => {
     assert.match(controller, /source\.setValue\(""\)/);
     assert.match(controller, /showSecondaryValues: true/);
     assert.match(controller, /isFreeTextProductField/);
+    assert.match(controller, /\^PRODUCT\$/);
     assert.match(controller, /resolveValueHelpCatalog/);
     assert.match(controller, /lookupValueHelp/);
     assert.match(controller, /sheetType === "ValueHelp"/);

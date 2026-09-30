@@ -215,7 +215,7 @@ sap.ui.define([
         return entry;
       });
       const fields = baseFields.map(function (field) {
-        const options = isFreeTextProductField(sheet.name, field.technicalName)
+        const options = isFreeTextProductField(field)
           ? []
           : lookupValueHelp(catalog, field.valueHelpKey).slice();
         return Object.assign({}, field, { valueHelp: options });
@@ -263,7 +263,7 @@ sap.ui.define([
             tooltip: tooltip
           }));
         }
-        const options = field.valueHelp || [];
+        const options = isFreeTextProductField(field) ? [] : (field.valueHelp || []);
         const template = options.length
           ? new ComboBox({
               selectedKey: "{app>col_" + field.columnIndex + "}",
@@ -425,9 +425,12 @@ sap.ui.define([
     return parseValueHelps(raw);
   }
 
-  function isFreeTextProductField(sheetName, technicalName) {
-    return /^basic\s*data$/i.test(String(sheetName || ""))
-      && /^PRODUCT$/i.test(String(technicalName || "").trim());
+  function isFreeTextProductField(field) {
+    const tech = String(field && field.technicalName || "").trim();
+    const sapName = String(field && field.sapFieldName || "").trim();
+    const desc = String(field && field.description || "");
+    if (/^PRODUCT$/i.test(tech) || /^PRODUCT$/i.test(sapName)) return true;
+    return /^product\s*number\b/i.test(desc);
   }
 
   function lookupValueHelp(catalog, tableField) {

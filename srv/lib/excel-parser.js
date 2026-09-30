@@ -245,7 +245,8 @@ function parseMigrationDataSheet(raw, rows, fieldCatalog, fieldKeys, valueHelps)
         raw.name,
         stripMarks(technicalName) || catalog?.technicalName || '',
         fieldKeys,
-        valueHelps
+        valueHelps,
+        stripMarks(description) || catalog?.description || ''
       )
     }));
   }
@@ -481,14 +482,15 @@ function looksLikeProductWorkbook(fileName, rawSheets) {
   });
 }
 
-function isFreeTextProductField(sheetName, technicalName) {
-  return /^basic\s*data$/i.test(String(sheetName || ''))
-    && /^PRODUCT$/i.test(String(technicalName || '').trim());
+function isFreeTextProductField(sheetName, technicalName, description) {
+  const tech = String(technicalName || '').trim();
+  if (/^PRODUCT$/i.test(tech)) return true;
+  return /product\s*number/i.test(String(description || ''));
 }
 
-function resolveValueHelpKey(row3, sheetName, technicalName, fieldKeys, valueHelps) {
-  // Product Number on Basic Data is typed by the user; do not bind MARA-MATNR.
-  if (isFreeTextProductField(sheetName, technicalName)) return '';
+function resolveValueHelpKey(row3, sheetName, technicalName, fieldKeys, valueHelps, description) {
+  // Product Number is typed by the user; do not bind MARA-MATNR on any sheet.
+  if (isFreeTextProductField(sheetName, technicalName, description)) return '';
   const fromRow = String(row3 || '').trim();
   if (fromRow) return fromRow;
   const tech = stripMarks(technicalName);
