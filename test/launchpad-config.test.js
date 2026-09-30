@@ -157,7 +157,7 @@ describe('Launchpad / destination wiring', () => {
     assert.match(parser, /indexPossibleValues/);
     assert.match(parser, /checkTableRow/);
     assert.match(controller, /sap\/m\/ComboBox/);
-    assert.match(controller, /forceSelection: true/);
+    assert.match(controller, /source\.setValue\(""\)/);
     assert.match(controller, /showSecondaryValues: true/);
     assert.match(controller, /isFreeTextProductField/);
     assert.match(controller, /resolveValueHelpCatalog/);

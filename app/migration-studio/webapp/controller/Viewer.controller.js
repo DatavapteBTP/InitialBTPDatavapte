@@ -47,10 +47,23 @@ sap.ui.define([
     onCellChange: function (oEvent) {
       const source = oEvent && oEvent.getSource && oEvent.getSource();
       if (source && source.getSelectedKey) {
+        let key = source.getSelectedKey() || "";
+        if (!key) {
+          const typed = String(source.getValue && source.getValue() || "").trim();
+          const items = source.getItems && source.getItems() || [];
+          const match = items.find(function (item) {
+            return String(item.getKey() || "").toUpperCase() === typed.toUpperCase();
+          });
+          if (match) {
+            key = match.getKey();
+            source.setSelectedKey(key);
+          } else {
+            source.setValue("");
+          }
+        }
         const binding = source.getBindingContext("app");
         const path = source.getBindingPath("selectedKey");
         if (binding && path) {
-          const key = source.getSelectedKey() || "";
           this.getOwnerComponent().getModel("app").setProperty(binding.getPath() + "/" + path, key);
         }
       }
@@ -257,7 +270,6 @@ sap.ui.define([
               selectedKey: "{app>col_" + field.columnIndex + "}",
               width: "100%",
               editable: true,
-              forceSelection: true,
               showSecondaryValues: true,
               filterSecondaryValues: true,
               change: this.onCellChange.bind(this),
